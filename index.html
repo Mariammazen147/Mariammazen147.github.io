@@ -1,0 +1,415 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mariam Mazen Mohamed | Software Tester</title>
+<meta name="description" content="Mariam Mazen Mohamed, ISTQB-certified Software Tester in Cairo, Egypt. Manual and automated testing, API testing, Selenium, Postman.">
+<meta property="og:title" content="Mariam Mazen Mohamed | Software Tester">
+<meta property="og:description" content="ISTQB-certified Software Tester. Manual and automated testing, API testing, Selenium, Postman.">
+<meta name="theme-color" content="#F6F4EF">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2314332E'/%3E%3Ctext x='32' y='42' text-anchor='middle' font-family='Georgia,serif' font-size='28' fill='%23F6F4EF'%3EMM%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F6F4EF; --surface:#FFFFFF; --ink:#16181D; --muted:#5B6069; --faint:#8A8F98;
+  --line:#E3DFD6; --accent:#14574C; --accent-soft:#E3EEEA; --accent-ink:#0E3F37;
+  --serif:"Newsreader",Georgia,serif; --sans:"Inter",system-ui,-apple-system,sans-serif; --mono:"JetBrains Mono",ui-monospace,monospace;
+  --max:1040px;
+}
+@media (prefers-color-scheme:dark){
+  :root{--bg:#111413; --surface:#181C1B; --ink:#ECEAE4; --muted:#A3A8A6; --faint:#7A807E;
+    --line:#2A302E; --accent:#6FC2AE; --accent-soft:#1C2D29; --accent-ink:#9ED8C9;}
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;scroll-padding-top:80px}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.65;-webkit-font-smoothing:antialiased}
+a{color:inherit}
+.wrap{max-width:var(--max);margin:0 auto;padding:0 24px}
+
+/* nav */
+header.nav{position:sticky;top:0;z-index:10;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid transparent;transition:border-color .2s}
+header.nav.scrolled{border-bottom-color:var(--line)}
+.nav .wrap{display:flex;align-items:center;justify-content:space-between;height:64px}
+.brand{font-family:var(--serif);font-size:20px;text-decoration:none;letter-spacing:-.01em}
+.nav ul{display:flex;gap:28px;list-style:none}
+.nav ul a{text-decoration:none;font-size:14px;color:var(--muted);transition:color .15s}
+.nav ul a:hover,.nav ul a.active{color:var(--ink)}
+.menu-btn{display:none;background:none;border:1px solid var(--line);border-radius:8px;padding:6px 10px;font:500 13px var(--sans);color:var(--ink);cursor:pointer}
+
+/* hero */
+.hero{padding:96px 0 88px}
+.eyebrow{font-family:var(--mono);font-size:12.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);display:flex;align-items:center;gap:10px}
+.eyebrow .dot{width:7px;height:7px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 4px var(--accent-soft)}
+h1{font-family:var(--serif);font-weight:400;font-size:clamp(40px,6vw,66px);line-height:1.02;letter-spacing:-.025em;margin:22px 0 24px}
+h1 em{font-style:italic;color:var(--accent)}
+.lede{font-size:clamp(17px,2vw,19px);color:var(--muted);max-width:640px}
+.lede strong{color:var(--ink);font-weight:500}
+.cta{display:flex;flex-wrap:wrap;gap:12px;margin-top:36px}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:12px 20px;border-radius:10px;font:500 15px var(--sans);text-decoration:none;border:1px solid var(--line);background:var(--surface);transition:transform .15s,border-color .15s,background .15s}
+.btn:hover{transform:translateY(-1px);border-color:var(--ink)}
+.btn.primary{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.btn svg{width:16px;height:16px}
+.facts{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin-top:72px;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.fact{padding:22px 20px 22px 0}
+.fact+.fact{padding-left:20px;border-left:1px solid var(--line)}
+.fact b{display:block;font-family:var(--serif);font-weight:400;font-size:30px;letter-spacing:-.02em;line-height:1.1}
+.fact span{font-size:13px;color:var(--muted)}
+
+/* sections */
+section.block{padding:88px 0;border-top:1px solid var(--line)}
+.sec-head{display:grid;grid-template-columns:220px 1fr;gap:40px;margin-bottom:8px}
+.sec-label{font-family:var(--mono);font-size:12.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--faint);padding-top:10px}
+h2{font-family:var(--serif);font-weight:400;font-size:clamp(30px,4vw,40px);letter-spacing:-.02em;line-height:1.15}
+.sec-body{display:grid;grid-template-columns:220px 1fr;gap:40px}
+.sec-body>.content{grid-column:2}
+p+p{margin-top:14px}
+.about p{color:var(--muted);font-size:17px;max-width:680px}
+.about p strong{color:var(--ink);font-weight:500}
+
+/* experience */
+.job{padding:32px 0;border-bottom:1px solid var(--line)}
+.job:last-child{border-bottom:0}
+.job-top{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:baseline}
+.job h3{font-size:19px;font-weight:600;letter-spacing:-.01em}
+.job .role{color:var(--muted);font-weight:400}
+.date{font-family:var(--mono);font-size:13px;color:var(--faint);white-space:nowrap}
+.timeline{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 6px}
+.chip{font-family:var(--mono);font-size:12px;padding:4px 10px;border-radius:999px;background:var(--accent-soft);color:var(--accent-ink)}
+.chip.plain{background:transparent;border:1px solid var(--line);color:var(--muted)}
+.job .desc{font-size:14.5px;color:var(--faint);font-style:italic;margin-bottom:14px}
+ul.pts{list-style:none;display:grid;gap:10px}
+ul.pts li{position:relative;padding-left:20px;color:var(--muted);font-size:15.5px}
+ul.pts li::before{content:"";position:absolute;left:0;top:.72em;width:8px;height:1.5px;background:var(--accent)}
+ul.pts li strong{color:var(--ink);font-weight:500}
+
+/* projects */
+.projects{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:8px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:26px;display:flex;flex-direction:column;transition:border-color .2s,transform .2s}
+.card:hover{border-color:var(--accent);transform:translateY(-2px)}
+.card.feature{grid-column:1/-1}
+.card .tag{font-family:var(--mono);font-size:11.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--accent);margin-bottom:10px}
+.card h3{font-family:var(--serif);font-weight:500;font-size:24px;letter-spacing:-.015em;line-height:1.2;margin-bottom:10px}
+.card p{color:var(--muted);font-size:15px}
+.card ul.pts{margin-top:14px}
+.card ul.pts li{font-size:14.5px}
+.stack{display:flex;flex-wrap:wrap;gap:6px;margin-top:18px}
+.stack span{font-family:var(--mono);font-size:11.5px;padding:3px 8px;border:1px solid var(--line);border-radius:6px;color:var(--muted)}
+.links{display:flex;gap:18px;margin-top:auto;padding-top:20px}
+.links a{font-size:14px;font-weight:500;color:var(--accent);text-decoration:underline;text-underline-offset:4px;text-decoration-thickness:1px}
+.links a:hover{text-decoration-thickness:2px}
+.feature-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:32px;align-items:start}
+.stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.stat{border:1px solid var(--line);border-radius:10px;padding:14px}
+.stat b{display:block;font-family:var(--serif);font-weight:400;font-size:28px;line-height:1.1}
+.stat span{font-size:12.5px;color:var(--muted)}
+
+/* skills */
+.skills{display:grid;gap:0}
+.skill-row{display:grid;grid-template-columns:200px 1fr;gap:24px;padding:18px 0;border-bottom:1px solid var(--line)}
+.skill-row:last-child{border-bottom:0}
+.skill-row h4{font-size:14px;font-weight:600}
+.pills{display:flex;flex-wrap:wrap;gap:6px}
+.pills span{font-size:13.5px;padding:4px 11px;border-radius:999px;background:var(--surface);border:1px solid var(--line)}
+.skill-row.hl .pills span{background:var(--accent-soft);border-color:transparent;color:var(--accent-ink)}
+
+/* edu */
+.two{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:26px}
+.panel h3{font-size:13px;font-family:var(--mono);letter-spacing:.05em;text-transform:uppercase;color:var(--faint);font-weight:400;margin-bottom:16px}
+.item{padding:12px 0;border-top:1px solid var(--line)}
+.item:first-of-type{border-top:0;padding-top:0}
+.item b{font-weight:600;font-size:15.5px;display:block}
+.item span{font-size:14px;color:var(--muted)}
+.cert{display:flex;gap:14px;align-items:center;padding:16px;border-radius:10px;background:var(--accent-soft);margin-bottom:14px}
+.cert .badge{flex:none;width:44px;height:44px;border-radius:10px;background:var(--accent);color:var(--bg);display:grid;place-items:center;font:600 12px var(--mono)}
+.cert b{color:var(--accent-ink)}
+.lang{display:flex;justify-content:space-between;padding:10px 0;border-top:1px solid var(--line);font-size:15px}
+.lang:first-of-type{border-top:0}
+.lang span{color:var(--muted);font-size:14px}
+
+/* contact */
+.contact{text-align:left}
+.contact h2{font-size:clamp(34px,5vw,52px);max-width:720px}
+.contact p{color:var(--muted);font-size:17px;margin-top:16px;max-width:560px}
+.contact-links{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:36px}
+.contact-links a{display:flex;flex-direction:column;gap:4px;padding:20px;border:1px solid var(--line);border-radius:12px;background:var(--surface);text-decoration:none;transition:border-color .15s}
+.contact-links a:hover{border-color:var(--accent)}
+.contact-links small{font-family:var(--mono);font-size:11.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--faint)}
+.contact-links b{font-weight:500;font-size:15px;word-break:break-all}
+footer{padding:36px 0 48px;border-top:1px solid var(--line);font-size:13px;color:var(--faint)}
+footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
+
+.reveal{opacity:0;transform:translateY(12px);transition:opacity .6s ease,transform .6s ease}
+.reveal.in{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none}html{scroll-behavior:auto}}
+
+@media (max-width:860px){
+  .sec-head,.sec-body{grid-template-columns:1fr;gap:12px}
+  .sec-body>.content{grid-column:1}
+  .sec-label{padding-top:0}
+  .projects,.two,.feature-grid{grid-template-columns:1fr}
+  .facts{grid-template-columns:1fr 1fr}
+  .fact:nth-child(3){padding-left:0;border-left:0}
+  .fact:nth-child(n+3){border-top:1px solid var(--line)}
+  .skill-row{grid-template-columns:1fr;gap:10px}
+  .contact-links{grid-template-columns:1fr}
+}
+@media (max-width:720px){
+  .menu-btn{display:block}
+  .nav ul{display:none;position:absolute;top:64px;left:0;right:0;flex-direction:column;gap:0;background:var(--bg);border-bottom:1px solid var(--line);padding:8px 16px 16px}
+  .nav ul.open{display:flex}
+  .nav ul a{display:block;padding:12px 8px;font-size:16px}
+  .wrap{padding:0 16px}
+  .hero{padding:64px 0 56px}
+  section.block{padding:64px 0}
+  .stat-row{grid-template-columns:repeat(3,1fr)}
+}
+</style>
+</head>
+<body>
+
+<header class="nav" id="top">
+  <div class="wrap">
+    <a href="#top" class="brand">Mariam Mazen</a>
+    <button class="menu-btn" aria-expanded="false" aria-controls="menu">Menu</button>
+    <ul id="menu">
+      <li><a href="#about">About</a></li>
+      <li><a href="#experience">Experience</a></li>
+      <li><a href="#projects">Projects</a></li>
+      <li><a href="#skills">Skills</a></li>
+      <li><a href="#education">Education</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="wrap">
+      <div class="eyebrow"><span class="dot"></span>Software Tester · Cairo, Egypt</div>
+      <h1>Mariam Mazen Mohamed.<br>I find the bugs <em>before</em> your users do.</h1>
+      <p class="lede"><strong>ISTQB-certified Software Tester</strong> and Computer Science graduate from Cairo University. I test a production poultry management platform full time, combining careful manual testing with UI automation in <strong>Python and Selenium</strong>, API testing in <strong>Postman</strong>, and unit testing with <strong>JUnit, Mockito and Jest</strong>.</p>
+      <div class="cta">
+        <a class="btn primary" href="#projects">View my work
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 8h10M9 4l4 4-4 4"/></svg></a>
+        <a class="btn" href="Mariam_Mazen_Mohamed_CV.pdf" download>Download CV
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M8 2v9M4 7l4 4 4-4M3 14h10"/></svg></a>
+        <a class="btn" href="https://www.linkedin.com/in/mariam-mazen/" target="_blank" rel="noopener">LinkedIn</a>
+        <a class="btn" href="https://github.com/Mariammazen147" target="_blank" rel="noopener">GitHub</a>
+      </div>
+      <div class="facts">
+        <div class="fact"><b>ISTQB</b><span>Foundation Level certified</span></div>
+        <div class="fact"><b>1+ yr</b><span>testing a production platform</span></div>
+        <div class="fact"><b>107</b><span>tests in my published VS Code extension</span></div>
+        <div class="fact"><b>5</b><span>languages spoken</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block reveal" id="about">
+    <div class="wrap">
+      <div class="sec-head"><div class="sec-label">01 — About</div><h2>Detail-oriented tester with a developer's background.</h2></div>
+      <div class="sec-body about"><div class="content" style="margin-top:22px">
+        <p>I started out building software, through the <strong>ALX Software Engineering program</strong>, internships, and a Computer Science degree at <strong>FCAI, Cairo University</strong>. Along the way I found that the part I enjoyed most was breaking things on purpose: finding the edge case nobody thought of and explaining exactly why it fails.</p>
+        <p>Today I work full time as a <strong>Software Tester at PoultrySync</strong>, where I design test cases from business requirements, run functional, regression and smoke testing before releases, and trace defects down to the data level so developers get precise root causes. Because I can read and write code, I work closely with developers and I'm comfortable with both <strong>manual and automated testing</strong>.</p>
+      </div></div>
+    </div>
+  </section>
+
+  <section class="block reveal" id="experience">
+    <div class="wrap">
+      <div class="sec-head"><div class="sec-label">02 — Experience</div><h2>Where I've worked</h2></div>
+      <div class="sec-body"><div class="content">
+        <article class="job">
+          <div class="job-top"><h3>PoultrySync <span class="role">· Software Tester</span></h3><span class="date">Jul 2025 – Present</span></div>
+          <div class="timeline"><span class="chip">Full-time · Oct 2025 – Present</span><span class="chip plain">Intern · Jul 2025 – Sep 2025</span></div>
+          <p class="desc">AI-enabled end-to-end poultry management solution helping poultry companies maximize production and reduce waste.</p>
+          <ul class="pts">
+            <li>Perform end-to-end manual testing of the web platform, covering <strong>functional, regression and smoke testing</strong> before releases.</li>
+            <li>Design and execute test cases from business requirements, focusing on <strong>edge cases and business rule validation</strong> such as zero or negative quantities, required fields and duplicate records.</li>
+            <li>Report defects with clear reproduction steps, expected vs. actual results and evidence, then retest fixes with the development team.</li>
+            <li>Investigate issues down to the data level, such as transaction failures caused by duplicate document numbers, to give developers <strong>precise root-cause details</strong>.</li>
+            <li>Built <strong>automated end-to-end tests</strong> for the Django admin panel with Python and Selenium WebDriver, including reusable functions for feed, medication, vaccination and disinfectant forms.</li>
+            <li>Automated complex UI interactions, including dynamic Select2 dropdowns and multi-step forms, using fallback test data and Arabic string normalization for stable runs.</li>
+          </ul>
+        </article>
+        <article class="job">
+          <div class="job-top"><h3>PlusOne Health <span class="role">· Software Engineering Intern</span></h3><span class="date">Jun 2024 – Aug 2024</span></div>
+          <p class="desc" style="margin-top:10px">Healthtech company connecting patients with top medical experts for second opinions.</p>
+          <ul class="pts">
+            <li>Automated web data extraction with <strong>Python and Selenium</strong>, handling dynamic content with error handling for reliable runs.</li>
+            <li>Developed full-stack features with Django and React and integrated third-party REST APIs.</li>
+            <li>Built responsive interfaces with Bootstrap and custom CSS, verified across mobile, tablet and desktop.</li>
+            <li>Worked in a Git branching and pull-request workflow, refactoring code for readability.</li>
+          </ul>
+        </article>
+      </div></div>
+    </div>
+  </section>
+
+  <section class="block reveal" id="projects">
+    <div class="wrap">
+      <div class="sec-head"><div class="sec-label">03 — Projects</div><h2>Selected work</h2></div>
+      <div class="projects" style="margin-top:32px">
+        <article class="card feature">
+          <div class="feature-grid">
+            <div>
+              <div class="tag">Graduation project · Published</div>
+              <h3>FocusShift: never lose your coding context again</h3>
+              <p>A VS Code extension that detects interruptions (switching windows or going idle), saves exactly where you were, and brings you back to the same file, line and cursor with a short "Welcome Back" summary. Summaries come from a heuristic engine, with optional offline AI summaries through a local Ollama model.</p>
+              <div class="stack"><span>TypeScript</span><span>Jest</span><span>VS Code API</span><span>Ollama</span></div>
+              <div class="links">
+                <a href="https://github.com/Mariammazen147/FocusShift" target="_blank" rel="noopener">GitHub repo</a>
+                <a href="https://marketplace.visualstudio.com/items?itemName=focusshift.focusshift" target="_blank" rel="noopener">VS Code Marketplace</a>
+              </div>
+            </div>
+            <div>
+              <div class="stat-row">
+                <div class="stat"><b>59→107</b><span>Jest tests</span></div>
+                <div class="stat"><b>11</b><span>test suites</span></div>
+                <div class="stat"><b>100%</b><span>local, no telemetry</span></div>
+              </div>
+              <ul class="pts">
+                <li>Expanded the suite using a <strong>mocked VS Code API</strong> for isolated, repeatable tests.</li>
+                <li>Found and fixed a restore loop, a stray auto-close timer and test isolation issues.</li>
+                <li>Built by a five-person team, supervised by Dr. Manar ElKady.</li>
+              </ul>
+            </div>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="tag">Team project · Testing</div>
+          <h3>Learning Management System</h3>
+          <p>Role-based LMS for admins, instructors and students: courses, quizzes, assignments, OTP attendance and notifications.</p>
+          <ul class="pts">
+            <li><strong>48 unit tests</strong> across 9 service areas with JUnit 5 and Mockito.</li>
+            <li>Endpoints secured with Spring Security and JWT.</li>
+          </ul>
+          <div class="stack"><span>Java</span><span>Spring Boot</span><span>MySQL</span><span>JUnit 5</span><span>Mockito</span></div>
+          <div class="links"><a href="https://github.com/Mariammazen147/Maintenance-Project" target="_blank" rel="noopener">GitHub repo</a></div>
+        </article>
+
+        <article class="card">
+          <div class="tag">Backend · API testing</div>
+          <h3>Travel Agency Backend</h3>
+          <p>Layered Spring Boot backend (controllers, services, DAOs) for users, hotels, bookings, events and notifications.</p>
+          <ul class="pts">
+            <li>Used a mock API data source for testing.</li>
+            <li>Validated every endpoint with <strong>Postman</strong>.</li>
+          </ul>
+          <div class="stack"><span>Java</span><span>Spring Boot</span><span>SQL Server</span><span>Maven</span><span>Postman</span></div>
+          <div class="links"><a href="https://github.com/Mariammazen147/Project-SDA" target="_blank" rel="noopener">GitHub repo</a></div>
+        </article>
+
+        <article class="card">
+          <div class="tag">Backend · REST API</div>
+          <h3>EventPlanner Backend</h3>
+          <p>REST API for events, invitations and users with JWT authentication, request validation and centralized error handling, containerized with Docker.</p>
+          <div class="stack"><span>Node.js</span><span>Express</span><span>MongoDB</span><span>JWT</span><span>Docker</span></div>
+          <div class="links"><a href="https://github.com/Mariammazen147/eventplanner-backend" target="_blank" rel="noopener">GitHub repo</a></div>
+        </article>
+
+        <article class="card">
+          <div class="tag">Distributed systems</div>
+          <h3>Multiplayer Trivia Game</h3>
+          <p>Client-server game for concurrent players: one thread per client, timed game rooms, scoring, hashed passwords and JSON persistence.</p>
+          <div class="stack"><span>Java</span><span>Sockets</span><span>Multithreading</span></div>
+          <div class="links"><a href="https://github.com/Mariammazen147/trivia-game-ds" target="_blank" rel="noopener">GitHub repo</a></div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="block reveal" id="skills">
+    <div class="wrap">
+      <div class="sec-head"><div class="sec-label">04 — Skills</div><h2>Toolkit</h2></div>
+      <div class="sec-body"><div class="content skills" style="margin-top:14px">
+        <div class="skill-row hl"><h4>Testing</h4><div class="pills"><span>Manual Testing</span><span>Functional</span><span>Regression</span><span>Smoke</span><span>API Testing</span><span>Test Case Design</span><span>Bug Reporting</span><span>UI Automation</span><span>Unit Testing</span></div></div>
+        <div class="skill-row hl"><h4>Testing Tools</h4><div class="pills"><span>Selenium WebDriver</span><span>Postman</span><span>JUnit 5</span><span>Mockito</span><span>Jest</span><span>Robot Framework</span></div></div>
+        <div class="skill-row"><h4>Languages</h4><div class="pills"><span>Java</span><span>Python</span><span>JavaScript</span><span>TypeScript</span><span>C++</span><span>C</span><span>SQL</span><span>HTML</span><span>CSS</span></div></div>
+        <div class="skill-row"><h4>Frameworks</h4><div class="pills"><span>Spring Boot</span><span>Spring Security</span><span>Java EE</span><span>Django</span><span>Node.js</span><span>Express</span><span>React.js</span></div></div>
+        <div class="skill-row"><h4>Databases</h4><div class="pills"><span>PostgreSQL</span><span>MySQL</span><span>MongoDB</span><span>SQL Server</span></div></div>
+        <div class="skill-row"><h4>Tools</h4><div class="pills"><span>Git</span><span>Docker</span><span>Kubernetes</span><span>Jenkins</span><span>Linux</span><span>Maven</span></div></div>
+        <div class="skill-row"><h4>Concepts</h4><div class="pills"><span>OOP</span><span>SOLID</span><span>Design Patterns</span><span>Microservices</span><span>Distributed Systems</span><span>REST APIs</span><span>Agile</span></div></div>
+      </div></div>
+    </div>
+  </section>
+
+  <section class="block reveal" id="education">
+    <div class="wrap">
+      <div class="sec-head"><div class="sec-label">05 — Education</div><h2>Education &amp; certifications</h2></div>
+      <div class="two" style="margin-top:32px">
+        <div class="panel">
+          <h3>Education</h3>
+          <div class="item"><b>BSc in Computer Science</b><span>Faculty of Computers and Artificial Intelligence, Cairo University · 2022 – 2026 · Grade: Good</span></div>
+          <div class="item"><b>Graduation project: FocusShift</b><span>VS Code extension published on the VS Code Marketplace</span></div>
+          <div class="item"><b>IGCSE</b><span>Mokattam International School · 2019 – 2022</span></div>
+        </div>
+        <div class="panel">
+          <h3>Certifications &amp; courses</h3>
+          <div class="cert"><div class="badge">CTFL</div><div><b>ISTQB Certified Tester</b><br><span style="font-size:14px;color:var(--muted)">Foundation Level</span></div></div>
+          <div class="item"><b>ALX Software Engineering Program</b><span>12-month track</span></div>
+          <div class="item"><b>German Language Certificate (B2)</b><span>MIG</span></div>
+          <div class="item"><b>Artificial Intelligence Fundamentals</b><span>Telecom Egypt</span></div>
+          <div class="item"><b>Programming Basics with C++</b><span>Route Academy</span></div>
+          <div class="item"><b>Embedded Systems</b><span>IMT</span></div>
+        </div>
+      </div>
+      <div class="panel" style="margin-top:18px">
+        <h3>Languages</h3>
+        <div class="two" style="gap:0 40px">
+          <div>
+            <div class="lang">Arabic <span>Native</span></div>
+            <div class="lang">English <span>Fluent</span></div>
+            <div class="lang">German <span>Upper-Intermediate (B2)</span></div>
+          </div>
+          <div>
+            <div class="lang">French <span>Beginner (A1)</span></div>
+            <div class="lang">Spanish <span>Beginner (A1)</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block reveal contact" id="contact">
+    <div class="wrap">
+      <div class="sec-label" style="margin-bottom:18px">06 — Contact</div>
+      <h2>Let's make sure your next release ships clean.</h2>
+      <p>I'm open to software testing and QA roles. The fastest way to reach me is email.</p>
+      <div class="contact-links">
+        <a href="mailto:mariammazen.004@gmail.com"><small>Email</small><b>mariammazen.004@gmail.com</b></a>
+        <a href="https://www.linkedin.com/in/mariam-mazen/" target="_blank" rel="noopener"><small>LinkedIn</small><b>in/mariam-mazen</b></a>
+        <a href="https://github.com/Mariammazen147" target="_blank" rel="noopener"><small>GitHub</small><b>Mariammazen147</b></a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap"><span>© <span id="yr">2026</span> Mariam Mazen Mohamed</span><span>Cairo, Egypt</span></div>
+</footer>
+
+<script>
+(function(){
+  var y=document.getElementById('yr'); if(y) y.textContent=new Date().getFullYear();
+  var nav=document.querySelector('header.nav');
+  addEventListener('scroll',function(){nav.classList.toggle('scrolled',scrollY>8)},{passive:true});
+  var btn=document.querySelector('.menu-btn'), menu=document.getElementById('menu');
+  btn.addEventListener('click',function(){var o=menu.classList.toggle('open');btn.setAttribute('aria-expanded',o)});
+  menu.querySelectorAll('a').forEach(function(a){a.addEventListener('click',function(){menu.classList.remove('open');btn.setAttribute('aria-expanded',false)})});
+  if('IntersectionObserver' in window){
+    var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})},{threshold:.08});
+    document.querySelectorAll('.reveal').forEach(function(el){io.observe(el)});
+    var links=[].slice.call(menu.querySelectorAll('a'));
+    var so=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){links.forEach(function(l){l.classList.toggle('active',l.getAttribute('href')==='#'+e.target.id)})}})},{rootMargin:'-45% 0px -50% 0px'});
+    document.querySelectorAll('section[id]').forEach(function(s){so.observe(s)});
+  } else { document.querySelectorAll('.reveal').forEach(function(el){el.classList.add('in')}); }
+})();
+</script>
+</body>
+</html>
