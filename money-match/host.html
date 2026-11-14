@@ -1,0 +1,530 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Money Match · Host</title>
+<meta name="robots" content="noindex">
+<link rel="stylesheet" href="common.css">
+<style>
+  body { display: flex; flex-direction: column; min-height: 100vh; }
+  header {
+    display: flex; align-items: center; gap: 24px;
+    padding: 18px 36px; border-bottom: 1px solid var(--line);
+  }
+  header .brand { font-size: 26px; }
+  header .meta { margin-left: auto; display: flex; gap: 28px; color: var(--muted); font-size: 18px; }
+  header .meta strong { color: var(--ink); }
+  main { flex: 1; padding: 32px 36px; display: flex; flex-direction: column; }
+  .screen { flex: 1; display: flex; flex-direction: column; }
+
+  /* lobby */
+  .lobby { display: grid; grid-template-columns: minmax(320px, 440px) 1fr; gap: 40px; flex: 1; }
+  .joinCard { background: var(--ink); color: #12202e; border-radius: 22px; padding: 28px; text-align: center; align-self: start; }
+  .qrBox svg { width: 100%; height: auto; display: block; }
+  .joinCard .scan { font-size: 22px; font-weight: 800; margin: 0 0 14px; }
+  .joinCard .url { font-size: 16px; margin-top: 14px; word-break: break-all; color: #3b4d5e; }
+  .joinCard .code { font-size: 44px; font-weight: 900; letter-spacing: .12em; margin-top: 6px; }
+  .side { display: flex; flex-direction: column; gap: 24px; min-width: 0; }
+  .side h1 { font-size: 46px; margin: 0; line-height: 1.05; letter-spacing: -0.02em; }
+  .side p.lead { margin: 0; color: var(--muted); font-size: 20px; max-width: 46ch; }
+  .settings { display: flex; flex-wrap: wrap; gap: 18px; }
+  .settings label { display: flex; flex-direction: column; gap: 6px; font-size: 14px; color: var(--muted); }
+  select {
+    font: inherit; font-size: 17px; color: var(--ink); background: var(--panel);
+    border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px;
+  }
+  .players { display: flex; flex-wrap: wrap; gap: 10px; align-content: flex-start; max-height: 38vh; overflow: auto; }
+  .chip {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 999px;
+    padding: 8px 10px 8px 16px; font-size: 18px; display: flex; align-items: center; gap: 8px;
+    animation: pop .25s ease;
+  }
+  .chip.off { opacity: .45; }
+  .chip button { background: none; color: var(--muted); font-size: 16px; padding: 0 4px; }
+  .chip button:hover { color: var(--o0); }
+  @keyframes pop { from { transform: scale(.7); opacity: 0; } }
+  .count { font-size: 20px; color: var(--muted); }
+  .count strong { color: var(--gold); font-size: 34px; }
+  .row { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
+
+  /* question + reveal */
+  .qtop { display: flex; align-items: center; gap: 24px; }
+  .qnum { color: var(--gold); font-weight: 800; font-size: 22px; letter-spacing: .04em; text-transform: uppercase; }
+  .timer {
+    margin-left: auto; width: 96px; height: 96px; border-radius: 50%;
+    display: grid; place-items: center; font-size: 40px; font-weight: 900;
+    background: conic-gradient(var(--gold) var(--p, 100%), var(--panel) 0);
+  }
+  .timer span { width: 80px; height: 80px; border-radius: 50%; background: var(--bg); display: grid; place-items: center; }
+  .qtext { font-size: clamp(32px, 4.2vw, 60px); line-height: 1.12; font-weight: 800; letter-spacing: -0.02em; margin: 22px 0 30px; max-width: 30ch; }
+  .opts { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; flex: 1; max-height: 46vh; }
+  .opt { border-radius: 18px; padding: 22px 26px; display: flex; align-items: center; gap: 18px; font-size: clamp(20px, 2.1vw, 30px); font-weight: 700; color: #fff; }
+  .bars { display: flex; flex-direction: column; gap: 16px; }
+  .bar { display: grid; grid-template-columns: 1fr 120px; gap: 18px; align-items: center; }
+  .barTrack { background: var(--panel); border-radius: 14px; overflow: hidden; position: relative; min-height: 64px; }
+  .barFill { position: absolute; inset: 0 auto 0 0; border-radius: 14px; transition: width .9s cubic-bezier(.2,.8,.2,1); }
+  .barLabel { position: relative; padding: 14px 20px; display: flex; gap: 14px; align-items: center; font-size: 22px; font-weight: 700; color: #fff; }
+  .barPct { font-size: 34px; font-weight: 900; text-align: right; }
+  .barPct small { display: block; font-size: 14px; color: var(--muted); font-weight: 600; }
+  .footer { display: flex; align-items: center; gap: 18px; margin-top: 26px; }
+  .footer .answered { font-size: 22px; color: var(--muted); }
+  .footer .answered strong { color: var(--ink); font-size: 30px; }
+  .footer .push { margin-left: auto; display: flex; gap: 12px; align-items: center; }
+  .miniQR { display: flex; align-items: center; gap: 10px; color: var(--muted); font-size: 14px; }
+  .miniQR .qrMini { width: 84px; height: 84px; background: #fff; padding: 4px; border-radius: 8px; }
+  .miniQR .qrMini svg { width: 100%; height: 100%; display: block; }
+  .miniQR b { color: var(--ink); font-size: 20px; letter-spacing: .1em; }
+
+  /* groups */
+  .gtitle { display: flex; align-items: end; gap: 20px; margin-bottom: 22px; }
+  .gtitle h1 { margin: 0; font-size: 42px; letter-spacing: -0.02em; }
+  .gtitle p { margin: 0 0 6px; color: var(--muted); font-size: 18px; }
+  .groups { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 16px; align-content: start; }
+  .group { background: var(--panel); border-radius: 16px; overflow: hidden; border: 1px solid var(--line); }
+  .group h3 { margin: 0; padding: 12px 16px; font-size: 22px; color: #fff; }
+  .group ul { margin: 0; padding: 12px 16px 16px; list-style: none; font-size: 19px; line-height: 1.55; }
+  .empty { color: var(--muted); font-size: 20px; }
+  .status { display: inline-flex; align-items: center; gap: 8px; }
+  .status i { width: 10px; height: 10px; border-radius: 50%; background: #e0a43a; display: inline-block; }
+  .status.live i { background: #3ecf7a; box-shadow: 0 0 0 4px rgba(62,207,122,.18); }
+  .modal { position: fixed; inset: 0; background: rgba(5,12,20,.7); display: grid; place-items: center; z-index: 10; }
+  .modal > div { background: var(--panel); border: 1px solid var(--line); border-radius: 18px; padding: 28px; max-width: 460px; }
+  .modal h2 { margin: 0 0 8px; } .modal p { color: var(--muted); margin: 0 0 20px; line-height: 1.45; }
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">Money<b>Match</b></div>
+  <div class="meta">
+    <span>Room <strong id="hCode">·····</strong></span>
+    <span class="status" id="status"><i></i><span id="statusText">Connecting…</span></span>
+  </div>
+</header>
+<main>
+  <!-- LOBBY -->
+  <section class="screen hidden" id="sLobby">
+    <div class="lobby">
+      <div class="joinCard">
+        <p class="scan">Scan to join</p>
+        <div class="qrBox" id="qr"></div>
+        <div class="url" id="joinUrl"></div>
+        <div class="code" id="bigCode"></div>
+      </div>
+      <div class="side">
+        <h1>Five questions about you and money.<br>Then we find your people.</h1>
+        <p class="lead">There are no right answers. Answer honestly, and at the end you'll be grouped with others to talk about why you chose what you chose.</p>
+        <div class="count"><strong id="pCount">0</strong> joined</div>
+        <div class="players" id="players"><span class="empty">Waiting for the first person…</span></div>
+        <div class="settings">
+          <label>Time per question
+            <select id="setSeconds">
+              <option value="15">15 seconds</option><option value="20">20 seconds</option>
+              <option value="25">25 seconds</option><option value="30">30 seconds</option>
+              <option value="45">45 seconds</option><option value="60">60 seconds</option>
+              <option value="0">No timer (I'll close each one)</option>
+            </select>
+          </label>
+          <label>Group size
+            <select id="setSize">
+              <option value="2">Pairs (2–3)</option><option value="3">3 people (3–5)</option>
+              <option value="4">4 people (4–7)</option><option value="5">5 people (5–9)</option>
+            </select>
+          </label>
+          <label>Match people who…
+            <select id="setMode">
+              <option value="balanced">Agree on some, differ on some</option>
+              <option value="similar">Answered alike</option>
+              <option value="different">Answered differently</option>
+            </select>
+          </label>
+        </div>
+        <div class="row">
+          <button class="btn" id="startBtn">Start the questions</button>
+          <button class="btn ghost" id="newRoomBtn">New room</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- QUESTION / REVEAL -->
+  <section class="screen hidden" id="sQuestion">
+    <div class="qtop">
+      <div class="qnum" id="qNum"></div>
+      <div class="timer" id="timer"><span id="timerNum"></span></div>
+    </div>
+    <div class="qtext" id="qText"></div>
+    <div class="opts" id="opts"></div>
+    <div class="bars hidden" id="bars"></div>
+    <div class="footer">
+      <div class="answered" id="answered"></div>
+      <div class="push">
+        <div class="miniQR"><div class="qrMini" id="qrMini"></div><div>Late? Join with<br><b id="miniCode"></b></div></div>
+        <button class="btn" id="nextBtn"></button>
+      </div>
+    </div>
+  </section>
+
+  <!-- GROUPS -->
+  <section class="screen hidden" id="sMatched">
+    <div class="gtitle">
+      <h1>Find your group</h1>
+      <p>Look at your phone for your group color and number, then find each other.</p>
+      <div class="row" style="margin-left:auto">
+        <button class="btn ghost" id="rematchBtn">Shuffle groups</button>
+        <button class="btn ghost" id="restartBtn">Play again</button>
+      </div>
+    </div>
+    <div class="groups" id="groups"></div>
+  </section>
+</main>
+
+<div class="modal hidden" id="modal"><div>
+  <h2 id="mTitle"></h2><p id="mText"></p>
+  <div class="row"><button class="btn" id="mYes"></button><button class="btn ghost" id="mNo">Cancel</button></div>
+</div></div>
+
+<script src="vendor/mqtt.min.js"></script>
+<script src="vendor/qrcode.js"></script>
+<script src="shared.js"></script>
+<script>
+const $ = (id) => document.getElementById(id);
+const Q = MM.QUESTIONS, esc = MM.esc;
+const L = "ABCD";
+const GROUP_COLORS = [
+  ["Red", "#e63946"], ["Blue", "#1d6fe0"], ["Green", "#2a9d48"], ["Orange", "#f08a24"],
+  ["Purple", "#7b3fe4"], ["Teal", "#119c9c"], ["Pink", "#e04aa0"], ["Brown", "#8a5a2b"],
+  ["Navy", "#23336e"], ["Olive", "#6f7d1e"], ["Maroon", "#8e1d3b"], ["Gray", "#5f6b76"],
+];
+
+// ------------------------------------------------------------ room state (kept in this browser)
+let room = MM.store.get("mm_host_room", null);
+if (room && (Date.now() - room.createdAt > 12 * 3600e3 || room.v !== 2)) room = null;
+function freshRoom(broker) {
+  return {
+    v: 2, code: MM.newCode(), broker, createdAt: Date.now(),
+    phase: "lobby", qIndex: -1, endsAt: null, closeAt: null,
+    settings: { seconds: 25, groupSize: 3, mode: "balanced" },
+    players: {}, order: [], groups: [], kicked: [],
+  };
+}
+const save = () => MM.store.set("mm_host_room", room);
+
+// ------------------------------------------------------------ relay connection
+let client = null, live = false, everConnected = false, subscribedCode = null;
+function connect(idx) {
+  if (client) client.end(true);
+  everConnected = false;
+  client = MM.connect(idx);
+  client.on("connect", () => {
+    everConnected = true; live = true;
+    if (!room) room = freshRoom(idx);
+    room.broker = idx;
+    subscribe();
+    publishNow();
+    render();
+  });
+  client.on("close", () => { live = false; renderStatus(); });
+  client.on("offline", () => { live = false; renderStatus(); });
+  client.on("message", onMessage);
+  // First relay unreachable on this network? Try the next one (only before anyone has joined).
+  setTimeout(() => {
+    if (!everConnected && (!room || room.order.length === 0) && idx + 1 < MM.BROKERS.length && !MM.params.get("broker")) {
+      if (room) room.broker = idx + 1;
+      connect(idx + 1);
+    }
+  }, 9000);
+}
+function subscribe() {
+  if (subscribedCode && subscribedCode !== room.code) client.unsubscribe([MM.topic(subscribedCode, "join"), MM.topic(subscribedCode, "answer")]);
+  client.subscribe([MM.topic(room.code, "join"), MM.topic(room.code, "answer")], { qos: 1 });
+  subscribedCode = room.code;
+}
+
+let pubTimer = null;
+function publish() { if (!pubTimer) pubTimer = setTimeout(publishNow, 180); }
+function publishNow() {
+  clearTimeout(pubTimer); pubTimer = null;
+  save();
+  if (!client || !client.connected) return;
+  const i = room.qIndex;
+  const a = {};
+  if (i >= 0 && room.phase !== "matched") for (const id of room.order) { const c = room.players[id].answers[i]; if (c != null) a[id] = c; }
+  const st = {
+    code: room.code, phase: room.phase, qIndex: i, total: Q.length,
+    seconds: room.settings.seconds, endsAt: room.endsAt, t: Date.now(),
+    question: i >= 0 && room.phase !== "matched" ? Q[i] : null,
+    players: room.order.map((id) => [id, room.players[id].name]),
+    a, groups: room.phase === "matched" ? room.groups : [], kicked: room.kicked.slice(-50),
+  };
+  client.publish(MM.topic(room.code, "state"), JSON.stringify(st), { qos: 1, retain: true });
+}
+
+function onMessage(topic, buf) {
+  let m; try { m = JSON.parse(buf.toString()); } catch { return; }
+  if (!m || typeof m.id !== "string" || m.id.length > 20) return;
+  const kind = topic.split("/").pop();
+  if (!topic.includes("/" + room.code + "/")) return;
+  if (kind === "join") {
+    if (room.kicked.includes(m.id)) return publish();
+    const name = String(m.name || "").trim().replace(/\s+/g, " ").slice(0, 24);
+    if (!room.players[m.id]) {
+      if (!name || room.order.length >= 250) return;
+      room.players[m.id] = { name, answers: Array(Q.length).fill(null) };
+      room.order.push(m.id);
+      if (room.phase === "matched") addToSmallestGroup(m.id);
+    }
+    publish(); render();
+  } else if (kind === "answer") {
+    const p = room.players[m.id];
+    if (!p || room.phase !== "question" || m.q !== room.qIndex) return publish();
+    const c = Number(m.c);
+    if (!(c >= 0 && c < 4)) return;
+    p.answers[room.qIndex] = c;
+    if (room.order.every((id) => room.players[id].answers[room.qIndex] != null)) room.closeAt = Date.now() + 1500;
+    publish(); render();
+  }
+}
+
+// ------------------------------------------------------------ game flow
+function openQuestion(i) {
+  room.qIndex = i; room.phase = "question"; room.groups = []; room.closeAt = null;
+  const s = Number(room.settings.seconds);
+  room.endsAt = s > 0 ? Date.now() + s * 1000 : null;
+  publishNow(); render();
+}
+function closeQuestion() {
+  if (room.phase !== "question") return;
+  room.phase = "reveal"; room.endsAt = null; room.closeAt = null;
+  publishNow(); render();
+}
+function next() {
+  if (room.phase === "question") return closeQuestion();
+  if (room.phase === "matched") return;
+  if (room.qIndex + 1 < Q.length) return openQuestion(room.qIndex + 1);
+  makeGroups(); room.phase = "matched";
+  publishNow(); render();
+}
+setInterval(() => {
+  if (room && room.phase === "question") {
+    const now = Date.now();
+    if ((room.endsAt && now >= room.endsAt + 300) || (room.closeAt && now >= room.closeAt)) closeQuestion();
+    if (room.endsAt) {
+      const left = Math.max(0, room.endsAt - now);
+      $("timerNum").textContent = Math.ceil(left / 1000);
+      $("timer").style.setProperty("--p", `${(left / (room.settings.seconds * 1000)) * 100}%`);
+    }
+  }
+}, 100);
+
+// ------------------------------------------------------------ matching
+function shuffle(a) { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+function pairScore(a, b, mode) {
+  let same = 0, common = 0;
+  for (let q = 0; q < Q.length; q++) {
+    if (a.answers[q] == null || b.answers[q] == null) continue;
+    common++; if (a.answers[q] === b.answers[q]) same++;
+  }
+  if (mode === "similar") return same;
+  if (mode === "different") return common - same;
+  return Math.min(same, common - same) + 0.01 * common; // some common ground AND something to debate
+}
+// sizes so nobody is alone: 7 people, size 3 -> [4,3]; 5 people, pairs -> [3,2]
+function groupSizes(n, k) {
+  if (n === 0) return [];
+  const g = Math.max(1, Math.floor(n / k)), base = Math.floor(n / g), extra = n % g;
+  return Array.from({ length: g }, (_, i) => base + (i < extra ? 1 : 0));
+}
+function makeGroups() {
+  const { groupSize, mode } = room.settings;
+  const ids = shuffle(room.order.slice());
+  const P = ids.map((id) => room.players[id]);
+  const S = P.map((a) => P.map((b) => (a === b ? 0 : pairScore(a, b, mode))));
+  const left = new Set(ids.map((_, i) => i));
+  const groups = groupSizes(ids.length, Math.max(2, Number(groupSize) || 3)).map((size) => {
+    const seed = left.values().next().value; left.delete(seed);
+    const g = [seed];
+    while (g.length < size) {
+      let best = -1, bs = -Infinity;
+      for (const c of left) { const s = g.reduce((t, m) => t + S[c][m], 0) + Math.random() * 0.001; if (s > bs) { bs = s; best = c; } }
+      left.delete(best); g.push(best);
+    }
+    return g;
+  });
+  const contrib = (g, x, skip) => g.reduce((t, m) => (m === skip || m === x ? t : t + S[x][m]), 0);
+  for (let it = 0; it < 4000 && groups.length > 1; it++) {
+    const gi = Math.floor(Math.random() * groups.length), gj = Math.floor(Math.random() * groups.length);
+    if (gi === gj) continue;
+    const A = groups[gi], B = groups[gj];
+    const ai = Math.floor(Math.random() * A.length), bi = Math.floor(Math.random() * B.length);
+    const a = A[ai], b = B[bi];
+    if (contrib(A, b, a) + contrib(B, a, b) - contrib(A, a, a) - contrib(B, b, b) > 0) { A[ai] = b; B[bi] = a; }
+  }
+  room.groups = groups.map((g, idx) => {
+    const [cname, color] = GROUP_COLORS[idx % GROUP_COLORS.length];
+    const members = g.map((i) => ids[i]);
+    return { number: idx + 1, label: `${cname} ${idx + 1}`, color, members, talk: talkingPoints(members) };
+  });
+}
+function addToSmallestGroup(id) {
+  if (!room.groups.length) return makeGroups();
+  const g = room.groups.reduce((a, b) => (b.members.length < a.members.length ? b : a));
+  g.members.push(id); g.talk = talkingPoints(g.members);
+}
+// What should this group talk about: where they split, and where they all agreed.
+function talkingPoints(memberIds) {
+  const members = memberIds.map((id) => room.players[id]).filter(Boolean);
+  const split = [], agree = [], out = [];
+  Q.forEach((qq, q) => {
+    const ans = members.filter((m) => m.answers[q] != null).map((m) => ({ name: m.name, a: m.answers[q] }));
+    if (ans.length < 2) return;
+    const distinct = new Set(ans.map((x) => x.a)).size;
+    if (distinct > 1) split.push({ q, distinct, ans });
+    else if (ans.length === members.length) agree.push({ q, ans });
+  });
+  split.sort((x, y) => y.distinct - x.distinct);
+  for (const s of split.slice(0, 2))
+    out.push({ type: "split", question: Q[s.q].q, answers: s.ans.map((x) => ({ name: x.name, answer: Q[s.q].options[x.a] })) });
+  if (agree.length) out.push({ type: "agree", question: Q[agree[0].q].q, answer: Q[agree[0].q].options[agree[0].ans[0].a] });
+  if (!out.length) out.push({ type: "open", question: "What's one money lesson you learned the hard way?" });
+  return out;
+}
+function kick(id) {
+  if (!room.players[id]) return;
+  delete room.players[id];
+  room.order = room.order.filter((x) => x !== id);
+  room.kicked.push(id);
+  if (room.phase === "matched") {
+    const g = room.groups.find((g) => g.members.includes(id));
+    if (g) {
+      g.members = g.members.filter((m) => m !== id);
+      if (g.members.length === 1 && room.groups.length > 1) {
+        const lone = g.members[0];
+        room.groups = room.groups.filter((x) => x !== g);
+        addToSmallestGroup(lone);
+      } else g.talk = talkingPoints(g.members);
+    }
+  }
+  publishNow(); render();
+}
+
+// ------------------------------------------------------------ rendering
+function joinUrl() {
+  const u = new URL("./", location.href);
+  u.search = "";
+  u.searchParams.set("r", room.code);
+  if (room.broker) u.searchParams.set("b", room.broker);
+  if (MM.params.get("broker")) u.searchParams.set("broker", MM.params.get("broker"));
+  return u.href;
+}
+let qrFor = null;
+function renderQR() {
+  const url = joinUrl();
+  if (qrFor === url) return;
+  qrFor = url;
+  const qr = qrcode(0, "M"); qr.addData(url); qr.make();
+  const svg = qr.createSvgTag({ cellSize: 4, margin: 2, scalable: true });
+  $("qr").innerHTML = svg; $("qrMini").innerHTML = svg;
+  $("joinUrl").textContent = url.replace(/^https?:\/\//, "");
+}
+function renderStatus() {
+  $("status").classList.toggle("live", live);
+  $("statusText").textContent = live ? "Live" : everConnected ? "Reconnecting…" : "Connecting…";
+}
+function show(id) { for (const s of ["sLobby", "sQuestion", "sMatched"]) $(s).classList.toggle("hidden", s !== id); }
+
+function render() {
+  renderStatus();
+  if (!room) return;
+  $("hCode").textContent = room.code; $("bigCode").textContent = room.code; $("miniCode").textContent = room.code;
+  renderQR();
+  $("setSeconds").value = room.settings.seconds; $("setSize").value = room.settings.groupSize; $("setMode").value = room.settings.mode;
+  const n = room.order.length;
+
+  if (room.phase === "lobby") {
+    show("sLobby");
+    $("pCount").textContent = n;
+    $("players").innerHTML = n
+      ? room.order.map((id) => `<span class="chip">${esc(room.players[id].name)}<button title="Remove" data-kick="${id}">✕</button></span>`).join("")
+      : `<span class="empty">Waiting for the first person…</span>`;
+    $("startBtn").disabled = n < 2;
+    $("startBtn").textContent = n < 2 ? "Waiting for at least 2 people" : `Start with ${n} people`;
+    return;
+  }
+  if (room.phase === "question" || room.phase === "reveal") {
+    show("sQuestion");
+    const i = room.qIndex, q = Q[i], reveal = room.phase === "reveal";
+    const counts = [0, 0, 0, 0];
+    let answered = 0;
+    for (const id of room.order) { const c = room.players[id].answers[i]; if (c != null) { counts[c]++; answered++; } }
+    $("qNum").textContent = `Question ${i + 1} of ${Q.length}`;
+    $("qText").textContent = q.q;
+    $("opts").classList.toggle("hidden", reveal);
+    $("bars").classList.toggle("hidden", !reveal);
+    $("timer").classList.toggle("hidden", reveal || !room.endsAt);
+    if (!reveal) {
+      const key = "q" + i;
+      if ($("opts").dataset.key !== key) {
+        $("opts").dataset.key = key;
+        $("opts").innerHTML = q.options.map((o, k) => `<div class="opt opt${k}"><span class="letter">${L[k]}</span>${esc(o)}</div>`).join("");
+      }
+    } else {
+      const total = answered || 1, key = i + ":" + counts.join(",");
+      if ($("bars").dataset.key !== key) {
+        $("bars").dataset.key = key;
+        $("bars").innerHTML = q.options.map((o, k) => `
+          <div class="bar"><div class="barTrack"><div class="barFill opt${k}" style="width:0"></div>
+            <div class="barLabel"><span class="letter">${L[k]}</span>${esc(o)}</div></div>
+          <div class="barPct">${Math.round((counts[k] / total) * 100)}%<small>${counts[k]} ${counts[k] === 1 ? "person" : "people"}</small></div></div>`).join("");
+        requestAnimationFrame(() => requestAnimationFrame(() =>
+          [...$("bars").querySelectorAll(".barFill")].forEach((el, k) => (el.style.width = `${Math.max(2, (counts[k] / total) * 100)}%`))));
+      }
+    }
+    $("answered").innerHTML = `<strong>${answered}</strong> of ${n} answered`;
+    $("nextBtn").textContent = !reveal ? "Close question" : i + 1 >= Q.length ? "Match everyone →" : "Next question →";
+    return;
+  }
+  if (room.phase === "matched") {
+    show("sMatched");
+    $("groups").innerHTML = room.groups.map((g) => `
+      <div class="group"><h3 style="background:${g.color}">${esc(g.label)}</h3>
+      <ul>${g.members.map((id) => `<li>${esc(room.players[id]?.name || "?")}</li>`).join("")}</ul></div>`).join("");
+  }
+}
+
+// ------------------------------------------------------------ controls
+function ask(title, text, yes, fn) {
+  $("mTitle").textContent = title; $("mText").textContent = text; $("mYes").textContent = yes;
+  $("modal").classList.remove("hidden");
+  $("mYes").onclick = () => { $("modal").classList.add("hidden"); fn(); };
+}
+$("mNo").onclick = () => $("modal").classList.add("hidden");
+$("players").addEventListener("click", (e) => { const id = e.target.dataset.kick; if (id) kick(id); });
+for (const [el, key] of [["setSeconds", "seconds"], ["setSize", "groupSize"], ["setMode", "mode"]])
+  $(el).addEventListener("change", () => { room.settings[key] = key === "mode" ? $(el).value : Number($(el).value); publish(); });
+let wakeLock = null;
+async function keepAwake() { try { wakeLock = await navigator.wakeLock?.request("screen"); } catch {} }
+$("startBtn").onclick = () => { keepAwake(); next(); };
+$("nextBtn").onclick = next;
+$("rematchBtn").onclick = () => { makeGroups(); publishNow(); render(); };
+$("restartBtn").onclick = () => ask("Play again?", "This clears all answers. Everyone stays in the room.", "Play again", () => {
+  room.phase = "lobby"; room.qIndex = -1; room.endsAt = null; room.groups = [];
+  for (const id of room.order) room.players[id].answers = Array(Q.length).fill(null);
+  publishNow(); render();
+});
+$("newRoomBtn").onclick = () => ask("Start a new room?", "Everyone will need to scan the new QR code.", "New room", () => {
+  if (client?.connected) client.publish(MM.topic(room.code, "state"), "", { qos: 1, retain: true }); // clear old room
+  room = freshRoom(room.broker);
+  subscribe(); publishNow(); render();
+});
+document.addEventListener("keydown", (e) => {
+  if (!room || room.phase === "lobby" || room.phase === "matched" || !$("modal").classList.contains("hidden")) return;
+  if (e.key === "ArrowRight" || e.key === " " || e.key === "PageDown") { e.preventDefault(); next(); }
+});
+document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible" && room?.phase !== "lobby") keepAwake(); });
+
+if (room) render();
+connect(room ? room.broker : Number(MM.params.get("b") || 0));
+</script>
+</body>
+</html>

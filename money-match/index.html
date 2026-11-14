@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0f1d2b">
+<meta name="robots" content="noindex">
+<title>Money Match</title>
+<link rel="stylesheet" href="common.css">
+<style>
+  body { min-height: 100dvh; display: flex; flex-direction: column; }
+  .wrap { flex: 1; display: flex; flex-direction: column; padding: 22px 20px calc(22px + env(safe-area-inset-bottom)); max-width: 560px; width: 100%; margin: 0 auto; }
+  .top { display: flex; align-items: center; justify-content: space-between; font-size: 15px; color: var(--muted); margin-bottom: 18px; }
+  .top .brand { font-size: 20px; color: var(--ink); }
+  .screen { flex: 1; display: flex; flex-direction: column; }
+  .center { justify-content: center; text-align: center; gap: 14px; }
+  h1 { font-size: 30px; line-height: 1.15; margin: 0; letter-spacing: -0.02em; }
+  p { margin: 0; color: var(--muted); font-size: 17px; line-height: 1.45; }
+  input {
+    font: inherit; font-size: 20px; width: 100%; padding: 16px; border-radius: 12px;
+    border: 2px solid var(--line); background: var(--panel); color: var(--ink); outline: none;
+  }
+  input:focus { border-color: var(--gold); }
+  .field { display: flex; flex-direction: column; gap: 8px; text-align: left; }
+  .field label { font-size: 14px; color: var(--muted); }
+  .err { color: #ff8a7a; min-height: 1.4em; font-size: 15px; }
+  .btn.full { width: 100%; padding: 18px; font-size: 19px; }
+  .pulse { width: 64px; height: 64px; border-radius: 50%; background: var(--gold); margin: 0 auto 6px; animation: pulse 1.6s ease-in-out infinite; }
+  @keyframes pulse { 0%,100% { transform: scale(.75); opacity: .5; } 50% { transform: scale(1); opacity: 1; } }
+
+  .qhead { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  .qnum { color: var(--gold); font-weight: 800; font-size: 14px; letter-spacing: .06em; text-transform: uppercase; }
+  .secs { font-weight: 800; font-size: 18px; font-variant-numeric: tabular-nums; }
+  .tbar { height: 6px; background: var(--panel); border-radius: 6px; overflow: hidden; margin-bottom: 18px; }
+  .tbar div { height: 100%; background: var(--gold); width: 100%; transition: width .1s linear; }
+  .qtext { font-size: 23px; font-weight: 800; line-height: 1.25; margin-bottom: 18px; letter-spacing: -0.01em; }
+  .choices { display: flex; flex-direction: column; gap: 12px; }
+  .choice {
+    display: flex; align-items: center; gap: 14px; text-align: left; color: #fff;
+    border-radius: 14px; padding: 16px; font-size: 17px; font-weight: 650; line-height: 1.3;
+    border: 3px solid transparent; transition: transform .08s ease, opacity .2s ease;
+  }
+  .choice:active { transform: scale(.98); }
+  .choices.picked .choice { opacity: .4; }
+  .choices.picked .choice.sel { opacity: 1; border-color: #fff; box-shadow: 0 0 0 3px rgba(255,255,255,.2); }
+  .hint { text-align: center; margin-top: 16px; font-size: 15px; min-height: 1.5em; }
+
+  .myans { display: inline-flex; gap: 10px; align-items: center; padding: 12px 16px; border-radius: 12px; color: #fff; font-weight: 700; margin: 6px auto 0; text-align: left; }
+
+  /* group screen */
+  .gcard { border-radius: 22px; padding: 24px 22px; color: #fff; text-align: center; }
+  .gcard .kicker { text-transform: uppercase; letter-spacing: .1em; font-size: 13px; font-weight: 800; opacity: .85; }
+  .gcard .glabel { font-size: 52px; font-weight: 900; letter-spacing: -0.02em; line-height: 1; margin: 6px 0 4px; }
+  .gcard .hold { font-size: 15px; opacity: .9; }
+  .members { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 16px; }
+  .members span { background: rgba(255,255,255,.2); border-radius: 999px; padding: 7px 14px; font-weight: 700; font-size: 16px; }
+  .members span.you { background: #fff; color: #111; }
+  .talk { margin-top: 20px; display: flex; flex-direction: column; gap: 12px; }
+  .talk h2 { font-size: 18px; margin: 0; }
+  .tp { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; }
+  .tp .tag { font-size: 12px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--gold); }
+  .tp .tq { font-weight: 700; margin: 4px 0 8px; font-size: 16px; line-height: 1.35; }
+  .tp ul { margin: 0; padding-left: 18px; color: var(--muted); font-size: 15px; line-height: 1.5; }
+  .tp ul b { color: var(--ink); font-weight: 650; }
+  .tp .ask { margin-top: 8px; font-size: 15px; color: var(--ink); }
+  .conn { position: fixed; left: 50%; bottom: 14px; transform: translateX(-50%); background: #3a2a10; color: var(--gold); padding: 8px 14px; border-radius: 999px; font-size: 14px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><span class="brand">Money<b>Match</b></span><span id="who"></span></div>
+
+  <!-- JOIN -->
+  <section class="screen center hidden" id="sJoin">
+    <h1>Join the session</h1>
+    <p>Answer 5 quick questions about money. No right or wrong answers.</p>
+    <form id="joinForm" style="display:flex;flex-direction:column;gap:14px;margin-top:10px">
+      <div class="field" id="codeField"><label for="code">Room code</label>
+        <input id="code" autocomplete="off" autocapitalize="characters" maxlength="5" placeholder="ABCDE"></div>
+      <div class="field"><label for="name">Your first name</label>
+        <input id="name" autocomplete="given-name" maxlength="24" placeholder="e.g. Sara"></div>
+      <div class="err" id="err"></div>
+      <button class="btn full" type="submit" id="joinBtn">Join</button>
+    </form>
+  </section>
+
+  <!-- WAIT -->
+  <section class="screen center hidden" id="sWait">
+    <div class="pulse"></div>
+    <h1 id="waitTitle">You're in!</h1>
+    <p id="waitText">Hang tight, we'll start in a moment.</p>
+  </section>
+
+  <!-- QUESTION -->
+  <section class="screen hidden" id="sQuestion">
+    <div class="qhead"><span class="qnum" id="qNum"></span><span class="secs" id="secs"></span></div>
+    <div class="tbar" id="tbar"><div id="tfill"></div></div>
+    <div class="qtext" id="qText"></div>
+    <div class="choices" id="choices"></div>
+    <p class="hint" id="hint"></p>
+  </section>
+
+  <!-- REVEAL -->
+  <section class="screen center hidden" id="sReveal">
+    <h1>Time's up</h1>
+    <p>Look at the big screen to see how the room answered.</p>
+    <div id="revealAns"></div>
+  </section>
+
+  <!-- GROUP -->
+  <section class="screen hidden" id="sGroup">
+    <div class="gcard" id="gcard">
+      <div class="kicker">Your group</div>
+      <div class="glabel" id="gLabel"></div>
+      <div class="hold">Hold up your phone and find your group</div>
+      <div class="members" id="gMembers"></div>
+    </div>
+    <div class="talk" id="talk"></div>
+  </section>
+
+  <!-- REMOVED -->
+  <section class="screen center hidden" id="sGone">
+    <h1>You were removed</h1>
+    <p>The host removed your name from this room.</p>
+    <button class="btn full" id="rejoinBtn" style="margin-top:12px">Join again</button>
+  </section>
+</div>
+<div class="conn hidden" id="conn">Reconnecting…</div>
+
+<script src="vendor/mqtt.min.js"></script>
+<script src="shared.js"></script>
+<script>
+const $ = (id) => document.getElementById(id);
+const L = "ABCD", esc = MM.esc;
+let code = (MM.params.get("r") || "").toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 5);
+let me = code ? MM.store.get("mm_p_" + code, null) : null; // {id, name}
+let state = null, skew = 0, pending = null, joinedAt = 0, client = null, searchTimer = null;
+
+function show(id) { for (const s of ["sJoin", "sWait", "sQuestion", "sReveal", "sGroup", "sGone"]) $(s).classList.toggle("hidden", s !== id); }
+const inRoom = () => !!(state && me && state.players.some((p) => p[0] === me.id));
+
+function showJoin(msg) {
+  show("sJoin");
+  $("codeField").classList.toggle("hidden", !!code);
+  $("name").value = $("name").value || MM.store.get("mm_name", "");
+  $("err").textContent = msg || "";
+  $("joinBtn").disabled = false;
+}
+function waiting(title, text) { show("sWait"); $("waitTitle").textContent = title; $("waitText").textContent = text || ""; }
+
+// ------------------------------------------------------------ relay
+client = MM.connect(Number(MM.params.get("b") || 0));
+client.on("connect", () => {
+  $("conn").classList.add("hidden");
+  if (code) watchRoom();
+  sendJoin(); sendAnswer();
+});
+client.on("offline", () => $("conn").classList.remove("hidden"));
+client.on("close", () => { if (client.reconnecting || !client.connected) $("conn").classList.remove("hidden"); });
+
+function watchRoom() {
+  client.subscribe(MM.topic(code, "state"), { qos: 1 });
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(() => {
+    if (!state) {
+      if (me) waiting("Looking for room " + code + "…", "Still connecting. If this doesn't change, try switching between Wi-Fi and mobile data.");
+      else $("err").textContent = `Can't find room ${code} yet. Check the code, or try mobile data.`;
+    }
+  }, 9000);
+}
+
+client.on("message", (topic, buf, packet) => {
+  if (!code || topic !== MM.topic(code, "state")) return;
+  if (!buf.length) { state = null; return waiting("This room has closed", "Ask the host for the new QR code."); }
+  let s; try { s = JSON.parse(buf.toString()); } catch { return; }
+  if (!packet.retain && s.t) skew = s.t - Date.now(); // live message: learn the host's clock
+  state = s;
+  if (pending && (state.phase !== "question" || state.qIndex !== pending.q || state.a[me?.id] === pending.c)) pending = null;
+  render();
+});
+
+function sendJoin() {
+  if (!me || !client.connected) return;
+  client.publish(MM.topic(code, "join"), JSON.stringify({ id: me.id, name: me.name }), { qos: 1 });
+  joinedAt = Date.now();
+}
+function sendAnswer() {
+  if (!pending || !me || !client.connected) return;
+  client.publish(MM.topic(code, "answer"), JSON.stringify({ id: me.id, q: pending.q, c: pending.c }), { qos: 1 });
+}
+// Keep retrying until the host confirms (covers flaky Wi-Fi and locked phones)
+setInterval(() => {
+  if (me && state && !inRoom() && !(state.kicked || []).includes(me.id) && Date.now() - joinedAt > 2500) sendJoin();
+  if (pending) sendAnswer();
+}, 2500);
+
+// ------------------------------------------------------------ join form
+$("joinForm").addEventListener("submit", (e) => {
+  e.preventDefault();
+  if (!code) {
+    const c = $("code").value.trim().toUpperCase();
+    if (c.length !== 5) return ($("err").textContent = "Enter the 5-character room code.");
+    code = c;
+    history.replaceState(null, "", "?r=" + code + (MM.params.get("b") ? "&b=" + MM.params.get("b") : ""));
+    if (client.connected) watchRoom();
+  }
+  const name = $("name").value.trim();
+  if (!name) return ($("err").textContent = "Please enter your name.");
+  MM.store.set("mm_name", name);
+  me = { id: MM.rid(), name };
+  MM.store.set("mm_p_" + code, me);
+  $("joinBtn").disabled = true;
+  sendJoin();
+  waiting("Joining…", "");
+  render();
+});
+$("rejoinBtn").onclick = () => { MM.store.del("mm_p_" + code); me = null; showJoin(); };
+
+// ------------------------------------------------------------ answering
+$("choices").addEventListener("click", (e) => {
+  const b = e.target.closest(".choice");
+  if (!b || !state || state.phase !== "question" || !inRoom()) return;
+  pending = { q: state.qIndex, c: Number(b.dataset.i) };
+  if (navigator.vibrate) navigator.vibrate(15);
+  sendAnswer();
+  render(); // instant feedback
+});
+
+// ------------------------------------------------------------ screens
+function render() {
+  $("who").textContent = me ? me.name : "";
+  if (!me) return showJoin($("err").textContent);
+  if (!state) return waiting("Joining…", "");
+  if ((state.kicked || []).includes(me.id)) return show("sGone");
+  if (!inRoom()) return waiting("Joining…", "");
+  const s = state, names = Object.fromEntries(s.players);
+
+  if (s.phase === "lobby") {
+    const n = s.players.length;
+    return waiting(`You're in, ${me.name}!`, `${n} ${n === 1 ? "person has" : "people have"} joined. We'll start in a moment.`);
+  }
+  if (s.phase === "question") {
+    show("sQuestion");
+    const q = s.question;
+    const mine = pending ? pending.c : s.a[me.id];
+    const confirmed = !pending && s.a[me.id] != null;
+    $("qNum").textContent = `Question ${s.qIndex + 1} of ${s.total}`;
+    $("qText").textContent = q.q;
+    if ($("choices").dataset.key !== String(s.qIndex)) {
+      $("choices").dataset.key = String(s.qIndex);
+      $("choices").innerHTML = q.options.map((o, i) =>
+        `<button class="choice opt${i}" data-i="${i}"><span class="letter">${L[i]}</span><span>${esc(o)}</span></button>`).join("");
+    }
+    $("choices").classList.toggle("picked", mine != null);
+    [...$("choices").children].forEach((b, i) => b.classList.toggle("sel", i === mine));
+    $("hint").textContent = mine == null ? "" : confirmed ? "✓ Answer received. You can change it until time runs out." : "Sending…";
+    $("tbar").classList.toggle("hidden", !s.endsAt);
+    $("secs").classList.toggle("hidden", !s.endsAt);
+    return;
+  }
+  if (s.phase === "reveal") {
+    show("sReveal");
+    const c = s.a[me.id];
+    $("revealAns").innerHTML = c != null
+      ? `<div class="myans opt${c}"><span class="letter">${L[c]}</span>${esc(s.question.options[c])}</div>`
+      : `<p>You didn't answer this one. No problem!</p>`;
+    return;
+  }
+  if (s.phase === "matched") {
+    const g = s.groups.find((g) => g.members.includes(me.id));
+    if (!g) return waiting("Finding your group…", "");
+    show("sGroup");
+    $("gcard").style.background = g.color;
+    document.querySelector('meta[name="theme-color"]').content = g.color;
+    $("gLabel").textContent = g.label;
+    $("gMembers").innerHTML = g.members.map((id) => `<span class="${id === me.id ? "you" : ""}">${id === me.id ? "You" : esc(names[id] || "?")}</span>`).join("");
+    const nm = (n) => (n === me.name ? "You" : esc(n));
+    $("talk").innerHTML = `<h2>Start the conversation</h2>` + g.talk.map((t) => {
+      if (t.type === "split") return `<div class="tp"><div class="tag">You answered differently</div><div class="tq">${esc(t.question)}</div>
+        <ul>${t.answers.map((a) => `<li><b>${nm(a.name)}</b>: ${esc(a.answer)}</li>`).join("")}</ul>
+        <div class="ask">Ask each other: why did you pick that?</div></div>`;
+      if (t.type === "agree") return `<div class="tp"><div class="tag">You all agreed</div><div class="tq">${esc(t.question)}</div>
+        <ul><li><b>${esc(t.answer)}</b></li></ul><div class="ask">What experience made you think this way?</div></div>`;
+      return `<div class="tp"><div class="tag">Talk about</div><div class="tq">${esc(t.question)}</div></div>`;
+    }).join("");
+  }
+}
+
+setInterval(() => {
+  if (!state || state.phase !== "question" || !state.endsAt) return;
+  const left = Math.max(0, state.endsAt - (Date.now() + skew));
+  $("secs").textContent = Math.ceil(left / 1000) + "s";
+  $("tfill").style.width = Math.min(100, (left / ((state.seconds || 1) * 1000)) * 100) + "%";
+}, 100);
+
+if (!code || !me) showJoin(); else waiting("Joining…", "");
+</script>
+</body>
+</html>
