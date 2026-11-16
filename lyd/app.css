@@ -49,6 +49,7 @@ button { font: inherit; cursor: pointer; border: 0; -webkit-tap-highlight-color:
 
 .brand { font-family: var(--display); font-weight: 800; letter-spacing: -0.01em; line-height: 1; }
 .brand b { color: var(--yellow); font-weight: 800; }
+.brand small { display: block; font-family: var(--body); font-size: .5em; font-weight: 600; letter-spacing: .06em; color: var(--ink); opacity: .85; margin-top: 3px; white-space: nowrap; }
 
 .btn {
   background: var(--yellow); color: #2a1d05; font-weight: 700; border-radius: 999px;

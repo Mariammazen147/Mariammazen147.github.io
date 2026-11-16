@@ -1,4 +1,4 @@
-// LYD Frequency: shared settings, questions, team names and helpers.
+// LYD (Legalize Youth Dreams) icebreaker: shared settings, questions, team names and helpers.
 // host.html runs the game; phones (index.html) talk to it through two free public relays at once,
 // so the game keeps going if one relay has a hiccup.
 
