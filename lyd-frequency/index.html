@@ -1,0 +1,366 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1d1648">
+<meta name="robots" content="noindex">
+<title>LYD Frequency</title>
+<link rel="icon" href="logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+Bhaijaan+2:wght@600;800&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="app.css">
+<style>
+  body { min-height: 100dvh; display: flex; flex-direction: column; }
+  .wrap { flex: 1; display: flex; flex-direction: column; padding: calc(16px + env(safe-area-inset-top)) 20px calc(24px + env(safe-area-inset-bottom)); max-width: 520px; width: 100%; margin: 0 auto; }
+  .top { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; }
+  .top .logo { width: 34px; height: 34px; }
+  .top .brand { font-size: 21px; }
+  .top #who { margin-left: auto; color: var(--muted); font-size: 15px; }
+  .screen { flex: 1; display: flex; flex-direction: column; }
+  .center { justify-content: center; text-align: center; align-items: center; gap: 14px; }
+  h1 { font-family: var(--display); font-size: 34px; line-height: 1.05; margin: 0; font-weight: 800; }
+  h1 em { font-style: normal; color: var(--yellow); }
+  p { margin: 0; color: var(--muted); font-size: 17px; line-height: 1.45; }
+  .bigLogo { width: 108px; height: 108px; margin: 6px auto 18px; }
+  form { display: flex; flex-direction: column; gap: 12px; margin-top: 12px; width: 100%; }
+  input { font: inherit; font-size: 20px; width: 100%; padding: 16px 18px; border-radius: 16px; border: 2px solid var(--line); background: rgba(255,255,255,.08); color: var(--ink); outline: none; text-align: center; }
+  input::placeholder { color: rgba(255,255,255,.4); }
+  input:focus { border-color: var(--yellow); }
+  .err { color: #ffa3c9; min-height: 1.4em; font-size: 15px; }
+  .btn.full { width: 100%; padding: 17px; font-size: 20px; }
+
+  .qhead { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .dots { display: flex; gap: 6px; }
+  .dots i { width: 22px; height: 6px; border-radius: 6px; background: var(--line); }
+  .dots i.on { background: var(--yellow); }
+  .secs { margin-left: auto; font-family: var(--display); font-weight: 800; font-size: 22px; font-variant-numeric: tabular-nums; }
+  .secs.low { color: var(--pink); }
+  .tbar { height: 6px; background: rgba(255,255,255,.1); border-radius: 6px; overflow: hidden; margin-bottom: 18px; }
+  .tbar div { height: 100%; background: var(--yellow); width: 100%; transition: width .1s linear; }
+  .qtext { font-family: var(--display); font-size: 27px; font-weight: 800; line-height: 1.12; margin-bottom: 18px; animation: rise .45s ease; }
+  .choices { display: flex; flex-direction: column; gap: 12px; }
+  .choice {
+    display: flex; align-items: center; gap: 14px; text-align: left; border-radius: 18px; padding: 15px 16px;
+    font-size: 18px; font-weight: 600; line-height: 1.25; border: 3px solid transparent;
+    transition: transform .12s ease, opacity .25s ease, filter .25s; animation: pop .45s cubic-bezier(.3,1.4,.5,1) both;
+  }
+  .choice:nth-child(2) { animation-delay: .06s; } .choice:nth-child(3) { animation-delay: .12s; } .choice:nth-child(4) { animation-delay: .18s; }
+  .choice .emo { font-size: 1.3em; }
+  .choice:active { transform: scale(.97); }
+  .choices.picked .choice { opacity: .38; filter: saturate(.6); }
+  .choices.picked .choice.sel { opacity: 1; filter: none; border-color: #fff; transform: scale(1.02); box-shadow: 0 8px 30px rgba(0,0,0,.3); }
+  .hint { text-align: center; margin-top: 16px; font-size: 15px; min-height: 1.5em; }
+
+  .mypick { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-radius: 18px; font-weight: 700; font-size: 18px; text-align: left; margin-top: 8px; animation: pop .5s cubic-bezier(.3,1.4,.5,1); }
+  .fun { font-family: var(--display); font-size: 24px; color: var(--yellow); font-weight: 800; margin-top: 8px; line-height: 1.15; animation: rise .5s ease .3s both; }
+
+  .countdown { position: fixed; inset: 0; z-index: 30; display: grid; place-items: center; text-align: center; background: var(--bg); }
+  .countdown .n { font-family: var(--display); font-size: 150px; font-weight: 800; line-height: 1; color: var(--yellow); animation: pop .6s cubic-bezier(.3,1.4,.5,1); }
+  .countdown p { font-size: 20px; }
+
+  .gcard { border-radius: 28px; padding: 24px 20px 22px; text-align: center; animation: pop .7s cubic-bezier(.3,1.4,.5,1); }
+  .gcard .kicker { text-transform: uppercase; letter-spacing: .12em; font-size: 13px; font-weight: 700; opacity: .8; }
+  .gcard .gemoji { font-size: 74px; line-height: 1.1; margin-top: 4px; animation: wiggle 2.4s ease-in-out infinite; display: inline-block; }
+  @keyframes wiggle { 0%,100% { transform: rotate(-6deg); } 50% { transform: rotate(6deg) scale(1.05); } }
+  .gcard .gname { font-family: var(--display); font-size: 48px; font-weight: 800; line-height: 1; }
+  .gcard .gar { font-family: var(--display); font-size: 26px; font-weight: 600; opacity: .85; margin-top: 2px; }
+  .gcard .hold { font-size: 15px; opacity: .85; margin-top: 10px; font-weight: 500; }
+  .members { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 14px; }
+  .members span { background: rgba(255,255,255,.35); border-radius: 999px; padding: 7px 14px; font-weight: 700; font-size: 17px; }
+  .members span.you { background: #fff; color: #1d1648; }
+  .talk { margin-top: 18px; display: flex; flex-direction: column; gap: 12px; }
+  .talk h2 { font-family: var(--display); font-size: 22px; margin: 0; font-weight: 800; }
+  .tp { background: var(--panel); border: 1px solid var(--line); border-radius: 18px; padding: 14px 16px; animation: rise .5s ease both; }
+  .tp:nth-of-type(2) { animation-delay: .15s; } .tp:nth-of-type(3) { animation-delay: .3s; }
+  .tp .tag { font-size: 12px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--yellow); }
+  .tp .tq { font-weight: 700; margin: 4px 0 8px; font-size: 17px; line-height: 1.3; }
+  .tp ul { margin: 0; padding-left: 0; list-style: none; color: var(--muted); font-size: 16px; line-height: 1.55; }
+  .tp ul b { color: var(--ink); font-weight: 600; }
+  .tp .ask { margin-top: 8px; font-size: 15px; color: var(--ink); }
+  .conn { position: fixed; left: 50%; bottom: calc(14px + env(safe-area-inset-bottom)); transform: translateX(-50%); background: #3a2a10; color: var(--yellow); padding: 8px 14px; border-radius: 999px; font-size: 14px; z-index: 20; }
+</style>
+</head>
+<body>
+<div class="blobs"><i></i><i></i><i></i></div>
+<div class="wrap">
+  <div class="top"><span class="logo"><img src="logo.png" alt="LYD"></span><span class="brand">LYD <b>Frequency</b></span><span id="who"></span></div>
+
+  <!-- JOIN -->
+  <section class="screen center hidden" id="sJoin">
+    <span class="logo live bigLogo"><img src="logo.png" alt=""></span>
+    <h1>Tune in to find<br><em>your people</em></h1>
+    <p>A few quick questions. No right answers.</p>
+    <form id="joinForm">
+      <input id="code" autocomplete="off" autocapitalize="characters" maxlength="5" placeholder="Room code">
+      <input id="name" autocomplete="given-name" maxlength="20" placeholder="Your first name" enterkeyhint="go">
+      <div class="err" id="err"></div>
+      <button class="btn full" type="submit" id="joinBtn">Tune in</button>
+    </form>
+  </section>
+
+  <!-- WAIT -->
+  <section class="screen center hidden" id="sWait">
+    <span class="logo live bigLogo"><img src="logo.png" alt=""></span>
+    <h1 id="waitTitle">You're in!</h1>
+    <p id="waitText"></p>
+  </section>
+
+  <!-- QUESTION -->
+  <section class="screen hidden" id="sQuestion">
+    <div class="qhead"><div class="dots" id="dots"></div><span class="secs" id="secs"></span></div>
+    <div class="tbar" id="tbar"><div id="tfill"></div></div>
+    <div class="qtext" id="qText"></div>
+    <div class="choices" id="choices"></div>
+    <p class="hint" id="hint"></p>
+  </section>
+
+  <!-- REVEAL -->
+  <section class="screen center hidden" id="sReveal">
+    <h1>Time's up!</h1>
+    <p>Look at the big screen 👀</p>
+    <div id="mypick"></div>
+    <div class="fun" id="fun"></div>
+  </section>
+
+  <!-- TEAM -->
+  <section class="screen hidden" id="sGroup">
+    <div class="gcard" id="gcard">
+      <div class="kicker">Your team</div>
+      <div class="gemoji" id="gEmoji"></div>
+      <div class="gname" id="gName"></div>
+      <div class="gar" id="gAr" lang="ar" dir="rtl"></div>
+      <div class="members" id="gMembers"></div>
+      <div class="hold">Hold up your phone and find your team 🙌</div>
+    </div>
+    <div class="talk" id="talk"></div>
+  </section>
+
+  <!-- REMOVED -->
+  <section class="screen center hidden" id="sGone">
+    <h1>You were removed</h1>
+    <p>The host removed your name from this room.</p>
+    <button class="btn full" id="rejoinBtn" style="margin-top:12px">Join again</button>
+  </section>
+</div>
+<div class="countdown hidden" id="countdown"><div><div class="n" id="cdN">3</div><p>Tuning in to your team…</p></div></div>
+<div class="conn hidden" id="conn">Reconnecting…</div>
+
+<script src="vendor/mqtt.min.js"></script>
+<script src="shared.js"></script>
+<script>
+const $ = (id) => document.getElementById(id);
+const esc = LF.esc;
+let code = (LF.params.get("r") || "").toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 5);
+let me = code ? LF.store.get("lf_p_" + code, null) : null; // {id, name}
+let state = null, lastSeq = -1, lastT = 0, skew = 0, pending = null, joinedAt = 0, everUp = false, searchTimer = null;
+let revealing = false;
+
+function show(id) { for (const s of ["sJoin", "sWait", "sQuestion", "sReveal", "sGroup", "sGone"]) $(s).classList.toggle("hidden", s !== id); }
+const inRoom = () => !!(state && me && state.players.some((p) => p[0] === me.id));
+const vibrate = (p) => { try { navigator.vibrate && navigator.vibrate(p); } catch {} };
+
+function showJoin(msg) {
+  show("sJoin");
+  $("code").classList.toggle("hidden", !!code);
+  $("name").value = $("name").value || LF.store.get("lf_name", "");
+  $("err").textContent = msg || "";
+  $("joinBtn").disabled = false;
+}
+function waiting(title, text) { show("sWait"); $("waitTitle").textContent = title; $("waitText").textContent = text || ""; }
+
+// ------------------------------------------------------------ relays
+const bus = new LF.Bus(onMessage, () => {
+  const up = bus ? bus.up : 0;
+  if (up) everUp = true;
+  $("conn").classList.toggle("hidden", up > 0 || !everUp);
+});
+bus.onConnect = () => { sendJoin(); sendAnswer(); };
+if (code) watchRoom();
+
+function watchRoom() {
+  bus.subscribe(LF.topic(code, "state"));
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(() => {
+    if (state) return;
+    if (me) waiting("Still looking for room " + code + "…", "If this doesn't change, switch between Wi-Fi and mobile data.");
+    else $("err").textContent = `Can't find room ${code} yet. Check the code, or try mobile data.`;
+  }, 10000);
+}
+
+function onMessage(t, buf, packet) {
+  if (!code || t !== LF.topic(code, "state")) return;
+  if (!buf.length) { state = null; return waiting("This room has closed", "Ask the host for the new QR code."); }
+  let s; try { s = JSON.parse(buf.toString()); } catch { return; }
+  if (!(s.t > lastT || s.seq > lastSeq)) return; // older copy from the second relay
+  lastT = s.t; lastSeq = s.seq;
+  if (!packet.retain && s.t) skew = s.t - Date.now(); // live message: learn the host's clock
+  state = s;
+  if (pending && (s.phase !== "question" || s.qIndex !== pending.q || s.a[me?.id] === pending.c)) pending = null;
+  render();
+}
+
+function sendJoin() {
+  if (!me || !code) return;
+  bus.publish(LF.topic(code, "join"), JSON.stringify({ id: me.id, name: me.name }));
+  joinedAt = Date.now();
+}
+function sendAnswer() {
+  if (!pending || !me) return;
+  bus.publish(LF.topic(code, "answer"), JSON.stringify({ id: me.id, q: pending.q, c: pending.c, n: pending.n }));
+}
+// keep retrying until the host confirms (covers flaky Wi-Fi and locked phones)
+setInterval(() => {
+  if (me && state && !inRoom() && !(state.kicked || []).includes(me.id) && Date.now() - joinedAt > 2500) sendJoin();
+  if (pending) sendAnswer();
+}, 2000);
+
+// ------------------------------------------------------------ join
+$("joinForm").addEventListener("submit", (e) => {
+  e.preventDefault();
+  if (!code) {
+    const c = $("code").value.trim().toUpperCase();
+    if (c.length !== 5) return ($("err").textContent = "Enter the 5-character room code from the screen.");
+    code = c;
+    history.replaceState(null, "", "?r=" + code + (LF.params.get("brokers") ? "&brokers=" + encodeURIComponent(LF.params.get("brokers")) : ""));
+    watchRoom();
+  }
+  const name = $("name").value.trim();
+  if (!name) return ($("err").textContent = "What should we call you?");
+  LF.store.set("lf_name", name);
+  me = { id: LF.rid(), name };
+  LF.store.set("lf_p_" + code, me);
+  $("joinBtn").disabled = true;
+  const r = $("joinBtn").getBoundingClientRect();
+  LF.bloomBurst(r.left + r.width / 2, r.top + r.height / 2, { count: 16 });
+  vibrate(20);
+  sendJoin();
+  waiting("Tuning in…", "");
+  render();
+});
+$("rejoinBtn").onclick = () => { LF.store.del("lf_p_" + code); me = null; showJoin(); };
+
+// ------------------------------------------------------------ answering
+$("choices").addEventListener("click", (e) => {
+  const b = e.target.closest(".choice");
+  if (!b || !state || state.phase !== "question" || !inRoom()) return;
+  const c = Number(b.dataset.i);
+  pending = { q: state.qIndex, c, n: Date.now() };
+  const r = b.getBoundingClientRect();
+  LF.bloomBurst(e.clientX || r.left + r.width / 2, e.clientY || r.top + r.height / 2, { colors: [LF.OPTION_COLORS[c][0], "#ffffff", "#F6B6D2"], count: 14, spread: 110 });
+  vibrate(15);
+  sendAnswer();
+  render(); // instant feedback
+});
+
+// ------------------------------------------------------------ screens
+function render() {
+  $("who").textContent = me ? me.name : "";
+  if (!me) return showJoin($("err").textContent);
+  if (!state) return waiting("Tuning in…", "");
+  if ((state.kicked || []).includes(me.id)) return show("sGone");
+  if (!inRoom()) return waiting("Tuning in…", "");
+  if (revealing) return;
+  const s = state, names = Object.fromEntries(s.players);
+
+  if (s.phase === "lobby") {
+    const n = s.players.length;
+    return waiting(`You're in, ${me.name}!`, `${n} ${n === 1 ? "person has" : "people have"} tuned in. Eyes on the screen, we start soon.`);
+  }
+  if (s.phase === "question") {
+    show("sQuestion");
+    const q = s.question;
+    const mine = pending && pending.q === s.qIndex ? pending.c : s.a[me.id];
+    const confirmed = !pending && s.a[me.id] != null;
+    $("dots").innerHTML = Array.from({ length: s.total }, (_, k) => `<i class="${k <= s.qIndex ? "on" : ""}"></i>`).join("");
+    if ($("choices").dataset.key !== String(s.qIndex)) {
+      $("choices").dataset.key = String(s.qIndex);
+      $("qText").textContent = q.q;
+      $("qText").style.animation = "none"; void $("qText").offsetWidth; $("qText").style.animation = "";
+      $("choices").innerHTML = q.options.map(([em, t], i) =>
+        `<button class="choice" data-i="${i}" style="background:${LF.OPTION_COLORS[i][0]};color:${LF.OPTION_COLORS[i][1]}"><span class="emo">${em}</span><span>${esc(t)}</span></button>`).join("");
+    }
+    $("choices").classList.toggle("picked", mine != null);
+    [...$("choices").children].forEach((b, i) => b.classList.toggle("sel", i === mine));
+    $("hint").textContent = mine == null ? "" : confirmed ? "✓ Got it. You can switch until time's up." : "Sending…";
+    $("tbar").classList.toggle("hidden", !s.endsAt);
+    $("secs").classList.toggle("hidden", !s.endsAt);
+    return;
+  }
+  if (s.phase === "reveal") {
+    show("sReveal");
+    const c = s.a[me.id];
+    if (c == null) { $("mypick").innerHTML = ""; $("fun").textContent = "You skipped this one. All good!"; return; }
+    const [em, t] = s.question.options[c];
+    $("mypick").innerHTML = `<div class="mypick" style="background:${LF.OPTION_COLORS[c][0]};color:${LF.OPTION_COLORS[c][1]}"><span class="emo">${em}</span>${esc(t)}</div>`;
+    const counts = [0, 0, 0, 0]; for (const v of Object.values(s.a)) counts[v]++;
+    const total = Object.keys(s.a).length, mineN = counts[c], max = Math.max(...counts);
+    $("fun").textContent =
+      mineN === 1 && total > 2 ? "Only you picked this. Bold move!" :
+      mineN === total && total > 1 ? "The whole room agrees with you!" :
+      mineN === max && counts.filter((x) => x === max).length === 1 ? `Most popular pick! You're with ${mineN - 1} other${mineN - 1 === 1 ? "" : "s"}.` :
+      `${mineN - 1} other${mineN - 1 === 1 ? "" : "s"} picked this too.`;
+    return;
+  }
+  if (s.phase === "matched") {
+    const g = s.groups.find((g) => g.members.includes(me.id));
+    if (!g) return waiting("Finding your team…", "");
+    const seenKey = "lf_seen_" + code + "_" + s.matchedAt;
+    let seen = false; try { seen = sessionStorage.getItem(seenKey) === "1"; } catch {}
+    if (!seen) {
+      try { sessionStorage.setItem(seenKey, "1"); } catch {}
+      return countdown(() => renderGroup(g, names, true));
+    }
+    renderGroup(g, names, false);
+  }
+}
+
+function countdown(done) {
+  revealing = true;
+  const el = $("countdown"), n = $("cdN");
+  el.classList.remove("hidden");
+  let k = 3;
+  const tick = () => {
+    if (k === 0) { el.classList.add("hidden"); revealing = false; done(); return; }
+    n.textContent = k; n.style.animation = "none"; void n.offsetWidth; n.style.animation = "";
+    vibrate(30); k--; setTimeout(tick, 750);
+  };
+  tick();
+}
+
+function renderGroup(g, names, celebrate) {
+  // the group may have changed (latecomer, shuffle) during the countdown
+  const latest = state && state.groups.find((x) => x.members.includes(me.id));
+  if (latest) g = latest;
+  show("sGroup");
+  $("gcard").style.background = g.color; $("gcard").style.color = g.fg;
+  document.querySelector('meta[name="theme-color"]').content = g.color;
+  $("gEmoji").textContent = g.emoji;
+  $("gName").textContent = g.name;
+  $("gAr").textContent = g.ar;
+  $("gMembers").innerHTML = g.members.map((id) => `<span class="${id === me.id ? "you" : ""}">${id === me.id ? "You" : esc(names[id] || "?")}</span>`).join("");
+  const nm = (n) => (n === me.name ? "You" : esc(n));
+  const cards = g.talk.map((t) => t.type === "agree"
+    ? `<div class="tp"><div class="tag">Same frequency</div><div class="tq">${esc(t.question)}</div>
+        <ul><li><b>You all picked:</b> ${esc(t.answer)}</li></ul><div class="ask">Coincidence? Find out why.</div></div>`
+    : `<div class="tp"><div class="tag">Different frequencies</div><div class="tq">${esc(t.question)}</div>
+        <ul>${t.answers.map((a) => `<li><b>${nm(a.name)}:</b> ${esc(a.answer)}</li>`).join("")}</ul>
+        <div class="ask">Each of you: why that one?</div></div>`);
+  cards.push(`<div class="tp"><div class="tag">Then ask each other</div><div class="tq">${esc(g.starter)}</div></div>`);
+  $("talk").innerHTML = `<h2>Start with this</h2>` + cards.join("");
+  if (celebrate) { LF.petalRain(45); vibrate([40, 60, 40]); }
+}
+
+setInterval(() => {
+  if (!state || state.phase !== "question" || !state.endsAt) return;
+  const left = Math.max(0, state.endsAt - (Date.now() + skew));
+  $("secs").textContent = Math.ceil(left / 1000) + "s";
+  $("secs").classList.toggle("low", left < 4000);
+  $("tfill").style.width = Math.min(100, (left / ((state.seconds || 1) * 1000)) * 100) + "%";
+}, 100);
+
+if (!code || !me) showJoin(); else waiting("Tuning in…", "");
+</script>
+</body>
+</html>

@@ -1,0 +1,618 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>LYD Frequency · Host</title>
+<link rel="icon" href="logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+Bhaijaan+2:wght@600;800&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="app.css">
+<style>
+  body { display: flex; flex-direction: column; min-height: 100vh; }
+  header { display: flex; align-items: center; gap: 14px; padding: 16px 34px; }
+  header .logo { width: 46px; height: 46px; }
+  header .brand { font-size: 28px; }
+  header .meta { margin-left: auto; display: flex; gap: 26px; align-items: center; color: var(--muted); font-size: 18px; }
+  header .meta strong { color: var(--ink); letter-spacing: .08em; }
+  .status { display: inline-flex; align-items: center; gap: 8px; }
+  .status i { width: 10px; height: 10px; border-radius: 50%; background: var(--yellow); }
+  .status.live i { background: #4fe08f; box-shadow: 0 0 0 4px rgba(79,224,143,.2); }
+  main { flex: 1; padding: 10px 34px 30px; display: flex; flex-direction: column; }
+  .screen { flex: 1; display: flex; flex-direction: column; }
+
+  /* lobby */
+  .lobby { display: grid; grid-template-columns: minmax(300px, 400px) 1fr; gap: 44px; flex: 1; align-items: start; }
+  .joinCard { background: #fff8ef; color: #1d1648; border-radius: 28px; padding: 24px 24px 20px; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,.35); position: relative; }
+  .joinCard .scan { font-family: var(--display); font-size: 26px; font-weight: 800; margin: 0 0 10px; }
+  .qrBox svg { width: 100%; height: auto; display: block; }
+  .joinCard .url { font-size: 15px; margin-top: 10px; word-break: break-all; color: #5a4a9e; }
+  .joinCard .code { font-family: var(--display); font-size: 42px; font-weight: 800; letter-spacing: .14em; margin-top: 2px; line-height: 1.1; }
+  .side { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
+  .side h1 { font-family: var(--display); font-size: clamp(40px, 4.4vw, 64px); margin: 6px 0 0; line-height: 1.02; font-weight: 800; letter-spacing: -0.01em; }
+  .side h1 em { font-style: normal; color: var(--yellow); }
+  .side p.lead { margin: 0; color: var(--muted); font-size: 21px; max-width: 44ch; line-height: 1.4; }
+  .count { font-size: 20px; color: var(--muted); display: flex; align-items: baseline; gap: 10px; }
+  .count strong { font-family: var(--display); color: var(--yellow); font-size: 54px; line-height: 1; }
+  .players { display: flex; flex-wrap: wrap; gap: 10px; align-content: flex-start; max-height: 30vh; overflow: auto; padding: 4px; }
+  .chip {
+    border-radius: 999px; padding: 8px 8px 8px 16px; font-size: 19px; font-weight: 600;
+    display: flex; align-items: center; gap: 6px; animation: pop .5s cubic-bezier(.3,1.4,.5,1);
+  }
+  .chip button { background: rgba(0,0,0,.12); color: inherit; width: 24px; height: 24px; border-radius: 50%; font-size: 12px; opacity: .55; }
+  .chip button:hover { opacity: 1; }
+  .empty { color: var(--muted); font-size: 19px; }
+  .settings { display: flex; flex-wrap: wrap; gap: 14px; }
+  .settings label { display: flex; flex-direction: column; gap: 6px; font-size: 14px; color: var(--muted); }
+  select { font: inherit; font-size: 16px; color: var(--ink); background: var(--panel-solid); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; }
+  .row { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
+
+  /* question */
+  .qtop { display: flex; align-items: center; gap: 24px; }
+  .qnum { color: var(--yellow); font-weight: 700; font-size: 20px; letter-spacing: .08em; text-transform: uppercase; }
+  .dots { display: flex; gap: 8px; }
+  .dots i { width: 34px; height: 8px; border-radius: 8px; background: var(--line); }
+  .dots i.on { background: var(--yellow); }
+  .timer { margin-left: auto; width: 100px; height: 100px; border-radius: 50%; display: grid; place-items: center; background: conic-gradient(var(--yellow) var(--p, 100%), rgba(255,255,255,.1) 0); }
+  .timer span { width: 84px; height: 84px; border-radius: 50%; background: var(--bg); display: grid; place-items: center; font-family: var(--display); font-size: 42px; font-weight: 800; }
+  .timer.low { background: conic-gradient(var(--pink) var(--p, 100%), rgba(255,255,255,.1) 0); }
+  .qtext { font-family: var(--display); font-size: clamp(36px, 4.4vw, 66px); line-height: 1.05; font-weight: 800; margin: 18px 0 26px; max-width: 26ch; animation: rise .5s ease; }
+  .opts { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  .opt { border-radius: 22px; padding: 22px 24px; display: flex; align-items: center; gap: 18px; font-size: clamp(22px, 2.2vw, 32px); font-weight: 700; line-height: 1.2; animation: pop .55s cubic-bezier(.3,1.4,.5,1) both; }
+  .opt .emo { font-size: 1.25em; }
+  .opt:nth-child(2) { animation-delay: .08s; } .opt:nth-child(3) { animation-delay: .16s; } .opt:nth-child(4) { animation-delay: .24s; }
+  .garden { position: relative; height: 90px; margin-top: 22px; border-bottom: 3px solid rgba(255,255,255,.12); }
+  .flower { position: absolute; bottom: 0; width: 46px; transform-origin: 50% 100%; animation: grow .9s cubic-bezier(.3,1.5,.5,1) both; }
+  .flower .stem { width: 4px; margin: 0 auto; background: #7fd7a8; border-radius: 4px; }
+  .flower svg { display: block; width: 46px; height: 46px; animation: spin 1.1s ease-out both; }
+  @keyframes grow { from { transform: scaleY(0); } }
+  @keyframes spin { from { transform: rotate(-120deg) scale(0); } }
+
+  /* reveal */
+  .headline { font-family: var(--display); font-size: 30px; font-weight: 800; color: var(--yellow); margin: -8px 0 16px; animation: rise .5s ease .4s both; }
+  .bars { display: flex; flex-direction: column; gap: 14px; }
+  .bar { display: grid; grid-template-columns: 1fr 130px; gap: 6px 18px; align-items: center; }
+  .barLabel { display: flex; gap: 12px; align-items: center; font-size: 24px; font-weight: 700; }
+  .barLabel .emo { background: rgba(255,255,255,.12); }
+  .barTrack { grid-column: 1; background: rgba(255,255,255,.09); border-radius: 12px; overflow: hidden; position: relative; height: 22px; }
+  .barFill { position: absolute; inset: 0 auto 0 0; border-radius: 12px; width: 0; transition: width 1.1s cubic-bezier(.2,.9,.2,1); }
+  .barPct { grid-column: 2; grid-row: 1 / span 2; }
+  .bar.top .barLabel { color: var(--yellow); }
+  .bar.top .barTrack { box-shadow: 0 0 0 2px rgba(253,196,98,.6); }
+  .barPct { font-family: var(--display); font-size: 40px; font-weight: 800; text-align: right; line-height: 1; }
+  .barPct small { display: block; font-family: var(--body); font-size: 15px; color: var(--muted); font-weight: 500; margin-top: 4px; }
+
+  .footer { display: flex; align-items: center; gap: 18px; margin-top: auto; padding-top: 18px; }
+  .footer .answered { font-size: 22px; color: var(--muted); }
+  .footer .answered strong { font-family: var(--display); color: var(--ink); font-size: 36px; }
+  .footer .push { margin-left: auto; display: flex; gap: 14px; align-items: center; }
+  .miniQR { display: flex; align-items: center; gap: 10px; color: var(--muted); font-size: 14px; }
+  .miniQR .qrMini { width: 86px; height: 86px; background: #fff; padding: 4px; border-radius: 10px; }
+  .miniQR .qrMini svg { width: 100%; height: 100%; display: block; }
+  .miniQR b { color: var(--ink); font-size: 20px; letter-spacing: .1em; }
+
+  /* tuning overlay */
+  .tuning { position: fixed; inset: 0; z-index: 30; display: grid; place-items: center; text-align: center; background: rgba(29,22,72,.92); backdrop-filter: blur(6px); }
+  .tuning .logo { width: 170px; height: 170px; margin-bottom: 40px; }
+  .tuning h2 { font-family: var(--display); font-size: 56px; margin: 0; font-weight: 800; }
+  .tuning p { color: var(--muted); font-size: 22px; margin: 6px 0 0; }
+
+  /* teams */
+  .gtitle { display: flex; align-items: flex-end; gap: 22px; margin-bottom: 20px; flex-wrap: wrap; }
+  .gtitle h1 { font-family: var(--display); margin: 0; font-size: 54px; line-height: 1; font-weight: 800; }
+  .gtitle p { margin: 0 0 6px; color: var(--muted); font-size: 19px; }
+  .groups { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; align-content: start; }
+  .group { border-radius: 22px; overflow: hidden; background: var(--panel); border: 1px solid var(--line); animation: pop .6s cubic-bezier(.3,1.4,.5,1) both; }
+  .group .gh { padding: 12px 16px; display: flex; align-items: center; gap: 10px; }
+  .group .gh .ge { font-size: 34px; line-height: 1; }
+  .group .gh b { font-family: var(--display); font-size: 25px; line-height: 1; display: block; }
+  .group .gh small { font-size: 15px; opacity: .8; }
+  .group ul { margin: 0; padding: 10px 16px 14px; list-style: none; font-size: 18px; line-height: 1.6; }
+
+  .modal { position: fixed; inset: 0; background: rgba(10,6,30,.7); display: grid; place-items: center; z-index: 40; }
+  .modal > div { background: var(--panel-solid); border: 1px solid var(--line); border-radius: 22px; padding: 28px; max-width: 460px; }
+  .modal h2 { font-family: var(--display); margin: 0 0 8px; } .modal p { color: var(--muted); margin: 0 0 20px; line-height: 1.45; }
+</style>
+</head>
+<body>
+<div class="blobs"><i></i><i></i><i></i></div>
+<header>
+  <span class="logo live" id="hLogo"><img src="logo.png" alt="LYD"></span>
+  <div class="brand">LYD <b>Frequency</b></div>
+  <div class="meta">
+    <span>Room <strong id="hCode">·····</strong></span>
+    <span class="status" id="status"><i></i><span id="statusText">Connecting…</span></span>
+  </div>
+</header>
+<main>
+  <!-- LOBBY -->
+  <section class="screen hidden" id="sLobby">
+    <div class="lobby">
+      <div class="joinCard">
+        <p class="scan">Scan to join</p>
+        <div class="qrBox" id="qr"></div>
+        <div class="url" id="joinUrl"></div>
+        <div class="code" id="bigCode"></div>
+      </div>
+      <div class="side">
+        <h1>Find your people on the <em>same frequency.</em></h1>
+        <p class="lead">A few quick questions. No right answers. Then we'll match you with people you should meet.</p>
+        <div class="count"><strong id="pCount">0</strong><span id="pWord">tuned in</span></div>
+        <div class="players" id="players"><span class="empty">Waiting for the first person to tune in…</span></div>
+        <div class="settings">
+          <label>Questions
+            <select id="setCount">
+              <option value="3">3 questions</option><option value="4">4 questions</option><option value="5">5 questions</option>
+            </select>
+          </label>
+          <label>Time per question
+            <select id="setSeconds">
+              <option value="10">10 seconds</option><option value="15">15 seconds</option>
+              <option value="20">20 seconds</option><option value="30">30 seconds</option>
+              <option value="0">No timer (I'll move on)</option>
+            </select>
+          </label>
+          <label>Team size
+            <select id="setSize">
+              <option value="2">Pairs (one trio if odd)</option>
+              <option value="3">2–3 people</option>
+              <option value="5">2–5 people</option>
+            </select>
+          </label>
+          <label>Match people who…
+            <select id="setMode">
+              <option value="balanced">Agree on some, differ on some</option>
+              <option value="similar">Answered alike</option>
+              <option value="different">Answered differently</option>
+            </select>
+          </label>
+        </div>
+        <div class="row">
+          <button class="btn" id="startBtn">Start</button>
+          <button class="btn ghost" id="newRoomBtn">New room</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- QUESTION / REVEAL -->
+  <section class="screen hidden" id="sQuestion">
+    <div class="qtop">
+      <div class="qnum" id="qNum"></div>
+      <div class="dots" id="dots"></div>
+      <div class="timer" id="timer"><span id="timerNum"></span></div>
+    </div>
+    <div class="qtext" id="qText"></div>
+    <div class="opts" id="opts"></div>
+    <div class="garden" id="garden"></div>
+    <div class="headline hidden" id="headline"></div>
+    <div class="bars hidden" id="bars"></div>
+    <div class="footer">
+      <div class="answered" id="answered"></div>
+      <div class="push">
+        <div class="miniQR"><div class="qrMini" id="qrMini"></div><div>Late? Join with<br><b id="miniCode"></b></div></div>
+        <button class="btn" id="nextBtn"></button>
+      </div>
+    </div>
+  </section>
+
+  <!-- TEAMS -->
+  <section class="screen hidden" id="sMatched">
+    <div class="gtitle">
+      <h1>Find your team!</h1>
+      <p>Your phone shows your team. Find the others and say hi 👋</p>
+      <div class="row" style="margin-left:auto">
+        <button class="btn ghost" id="rematchBtn">Shuffle teams</button>
+        <button class="btn ghost" id="restartBtn">Play again</button>
+      </div>
+    </div>
+    <div class="groups" id="groups"></div>
+  </section>
+</main>
+
+<div class="tuning hidden" id="tuning">
+  <div>
+    <span class="logo live"><img src="logo.png" alt=""></span>
+    <h2>Tuning frequencies…</h2>
+    <p>Matching everyone with their people</p>
+  </div>
+</div>
+
+<div class="modal hidden" id="modal"><div>
+  <h2 id="mTitle"></h2><p id="mText"></p>
+  <div class="row"><button class="btn" id="mYes"></button><button class="btn ghost" id="mNo">Cancel</button></div>
+</div></div>
+
+<script src="vendor/mqtt.min.js"></script>
+<script src="vendor/qrcode.js"></script>
+<script src="shared.js"></script>
+<script>
+const $ = (id) => document.getElementById(id);
+const esc = LF.esc;
+
+// ------------------------------------------------------------ room state (kept in this browser)
+let room = LF.store.get("lf_host_room", null);
+if (room && (Date.now() - room.createdAt > 12 * 3600e3 || room.v !== 1)) room = null;
+function freshRoom(prev) {
+  return {
+    v: 1, code: LF.newCode(), createdAt: Date.now(), seq: (prev && prev.seq) || 0,
+    phase: "lobby", qIndex: -1, endsAt: null, closeAt: null, matchedAt: 0,
+    settings: prev ? prev.settings : { count: 4, seconds: 15, groupSize: 3, mode: "balanced" },
+    questions: [], players: {}, order: [], groups: [], kicked: [],
+  };
+}
+if (!room) room = freshRoom();
+const save = () => LF.store.set("lf_host_room", room);
+const Q = () => room.questions.length ? room.questions : LF.pickQuestions(room.settings.count);
+
+// ------------------------------------------------------------ relays
+const bus = new LF.Bus(onMessage, renderStatus);
+bus.onConnect = () => { publishNow(); };
+bus.subscribe(LF.topic(room.code, "join"));
+bus.subscribe(LF.topic(room.code, "answer"));
+let subscribedCode = room.code;
+function resubscribe() {
+  bus.unsubscribe(LF.topic(subscribedCode, "join")); bus.unsubscribe(LF.topic(subscribedCode, "answer"));
+  bus.subscribe(LF.topic(room.code, "join")); bus.subscribe(LF.topic(room.code, "answer"));
+  subscribedCode = room.code;
+}
+
+let pubTimer = null;
+function publish() { if (!pubTimer) pubTimer = setTimeout(publishNow, 150); }
+function publishNow() {
+  clearTimeout(pubTimer); pubTimer = null;
+  room.seq++;
+  save();
+  const i = room.qIndex, qs = Q();
+  const a = {};
+  if (i >= 0 && room.phase !== "matched" && room.phase !== "lobby")
+    for (const id of room.order) { const c = room.players[id].answers[i]; if (c != null) a[id] = c; }
+  const st = {
+    code: room.code, seq: room.seq, phase: room.phase, qIndex: i, total: qs.length,
+    seconds: room.settings.seconds, endsAt: room.endsAt, t: Date.now(),
+    question: i >= 0 && room.phase !== "matched" && room.phase !== "lobby" ? { q: qs[i].q, options: qs[i].options } : null,
+    players: room.order.map((id) => [id, room.players[id].name]),
+    a, groups: room.phase === "matched" ? room.groups : [], matchedAt: room.matchedAt,
+    kicked: room.kicked.slice(-60),
+  };
+  bus.publish(LF.topic(room.code, "state"), JSON.stringify(st), { qos: 1, retain: true });
+}
+// re-send state every few seconds so a phone that missed something catches up
+setInterval(() => { if (bus.up) publishNow(); }, 6000);
+
+function onMessage(t, buf) {
+  if (!t.startsWith(LF.topic(room.code, ""))) return;
+  let m; try { m = JSON.parse(buf.toString()); } catch { return; }
+  if (!m || typeof m.id !== "string" || m.id.length > 20) return;
+  const kind = t.split("/").pop();
+  if (kind === "join") {
+    if (room.kicked.includes(m.id)) return publish();
+    if (!room.players[m.id]) {
+      const name = String(m.name || "").trim().replace(/\s+/g, " ").slice(0, 20);
+      if (!name || room.order.length >= 120) return;
+      room.players[m.id] = { name, answers: Array(5).fill(null), n: Array(5).fill(-1), color: LF.BLOOM[room.order.length % LF.BLOOM.length] };
+      room.order.push(m.id);
+      if (room.phase === "matched") addToSmallestGroup(m.id);
+      render(m.id);
+    }
+    publish();
+  } else if (kind === "answer") {
+    const p = room.players[m.id];
+    if (!p || room.phase !== "question" || m.q !== room.qIndex) return publish();
+    const c = Number(m.c), n = Number(m.n) || 0;
+    if (!(c >= 0 && c < 4) || n <= p.n[m.q]) return; // ignore duplicates/out-of-order copies
+    const first = p.answers[m.q] == null;
+    p.answers[m.q] = c; p.n[m.q] = n;
+    if (first) addFlower(p.color);
+    if (room.order.every((id) => room.players[id].answers[room.qIndex] != null)) room.closeAt = Date.now() + 1500;
+    publish(); render();
+  }
+}
+
+// ------------------------------------------------------------ game flow
+function openQuestion(i) {
+  room.qIndex = i; room.phase = "question"; room.groups = []; room.closeAt = null;
+  const s = Number(room.settings.seconds);
+  room.endsAt = s > 0 ? Date.now() + s * 1000 : null;
+  $("garden").innerHTML = "";
+  publishNow(); render();
+}
+function closeQuestion() {
+  if (room.phase !== "question") return;
+  room.phase = "reveal"; room.endsAt = null; room.closeAt = null;
+  publishNow(); render();
+}
+function next() {
+  if (room.phase === "lobby") { room.questions = LF.pickQuestions(room.settings.count); return openQuestion(0); }
+  if (room.phase === "question") return closeQuestion();
+  if (room.phase === "matched") return;
+  if (room.qIndex + 1 < Q().length) return openQuestion(room.qIndex + 1);
+  makeGroups(); room.phase = "matched"; room.matchedAt = Date.now();
+  publishNow();
+  showTuning();
+}
+setInterval(() => {
+  if (room.phase !== "question") return;
+  const now = Date.now();
+  if ((room.endsAt && now >= room.endsAt + 300) || (room.closeAt && now >= room.closeAt)) return closeQuestion();
+  if (room.endsAt) {
+    const left = Math.max(0, room.endsAt - now);
+    $("timerNum").textContent = Math.ceil(left / 1000);
+    $("timer").style.setProperty("--p", `${(left / (room.settings.seconds * 1000)) * 100}%`);
+    $("timer").classList.toggle("low", left < 4000);
+  }
+}, 100);
+
+// ------------------------------------------------------------ matching
+function shuffle(a) { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+function pairScore(a, b, mode) {
+  let same = 0, common = 0;
+  for (let q = 0; q < Q().length; q++) {
+    if (a.answers[q] == null || b.answers[q] == null) continue;
+    common++; if (a.answers[q] === b.answers[q]) same++;
+  }
+  if (mode === "similar") return same;
+  if (mode === "different") return common - same;
+  return Math.min(same, common - same) + 0.01 * common; // some common ground AND something to talk about
+}
+// Team sizes. Nobody is ever alone (except if only 1 person joined).
+// max 2: pairs (+1 trio if odd) · max 3: groups of 2–3 · max 5: groups of 2–5
+function groupSizes(n, max) {
+  if (n <= 0) return [];
+  if (n === 1) return [1];
+  const g = Math.max(1, max === 2 ? Math.floor(n / 2) : Math.ceil(n / max));
+  const base = Math.floor(n / g), extra = n % g;
+  return Array.from({ length: g }, (_, i) => base + (i < extra ? 1 : 0));
+}
+function makeGroups() {
+  const { groupSize, mode } = room.settings;
+  const ids = shuffle(room.order.slice());
+  const P = ids.map((id) => room.players[id]);
+  const S = P.map((a) => P.map((b) => (a === b ? 0 : pairScore(a, b, mode))));
+  const left = new Set(ids.map((_, i) => i));
+  const groups = groupSizes(ids.length, Number(groupSize)).map((size) => {
+    const seed = left.values().next().value; left.delete(seed);
+    const g = [seed];
+    while (g.length < size) {
+      let best = -1, bs = -Infinity;
+      for (const c of left) { const s = g.reduce((t, m) => t + S[c][m], 0) + Math.random() * 0.001; if (s > bs) { bs = s; best = c; } }
+      left.delete(best); g.push(best);
+    }
+    return g;
+  });
+  const contrib = (g, x, skip) => g.reduce((t, m) => (m === skip || m === x ? t : t + S[x][m]), 0);
+  for (let it = 0; it < 5000 && groups.length > 1; it++) {
+    const gi = Math.floor(Math.random() * groups.length), gj = Math.floor(Math.random() * groups.length);
+    if (gi === gj) continue;
+    const A = groups[gi], B = groups[gj];
+    const ai = Math.floor(Math.random() * A.length), bi = Math.floor(Math.random() * B.length);
+    const a = A[ai], b = B[bi];
+    if (contrib(A, b, a) + contrib(B, a, b) - contrib(A, a, a) - contrib(B, b, b) > 0) { A[ai] = b; B[bi] = a; }
+  }
+  const teams = shuffle(LF.TEAMS.slice());
+  const starters = shuffle(STARTERS.slice());
+  room.groups = groups.map((g, idx) => {
+    const [emoji, name, ar] = teams[idx % teams.length];
+    const [color, fg] = LF.TEAM_COLORS[idx % LF.TEAM_COLORS.length];
+    const members = g.map((i) => ids[i]);
+    return {
+      id: idx + 1, emoji, name: idx < teams.length ? name : `${name} ${Math.floor(idx / teams.length) + 1}`, ar, color, fg,
+      members, starter: starters[idx % starters.length], talk: talkingPoints(members),
+    };
+  });
+}
+const STARTERS = [
+  "What brought you here today?",
+  "What's something you're learning right now?",
+  "What's the best thing that happened to you this month?",
+  "What's one place you'd recommend everyone visit?",
+  "What's a skill you'd love to swap with someone here?",
+];
+function addToSmallestGroup(id) {
+  if (!room.groups.length) return makeGroups();
+  const g = room.groups.reduce((a, b) => (b.members.length < a.members.length ? b : a));
+  g.members.push(id); g.talk = talkingPoints(g.members);
+}
+// What this team talks about first: where they split, and where they all agreed.
+function talkingPoints(memberIds) {
+  const qs = Q();
+  const members = memberIds.map((id) => room.players[id]).filter(Boolean);
+  const split = [], agree = [], out = [];
+  qs.forEach((qq, q) => {
+    const ans = members.filter((m) => m.answers[q] != null).map((m) => ({ name: m.name, a: m.answers[q] }));
+    if (ans.length < 2) return;
+    const distinct = new Set(ans.map((x) => x.a)).size;
+    if (distinct > 1) split.push({ q, distinct, ans });
+    else if (ans.length === members.length) agree.push({ q, ans });
+  });
+  split.sort((x, y) => y.distinct - x.distinct);
+  if (agree.length) {
+    const o = qs[agree[0].q].options[agree[0].ans[0].a];
+    out.push({ type: "agree", question: qs[agree[0].q].q, answer: o[0] + " " + o[1] });
+  }
+  for (const s of split.slice(0, agree.length ? 1 : 2))
+    out.push({ type: "split", question: qs[s.q].q, answers: s.ans.map((x) => ({ name: x.name, answer: qs[s.q].options[x.a][0] + " " + qs[s.q].options[x.a][1] })) });
+  return out;
+}
+function kick(id) {
+  if (!room.players[id]) return;
+  delete room.players[id];
+  room.order = room.order.filter((x) => x !== id);
+  room.kicked.push(id);
+  if (room.phase === "matched") {
+    const g = room.groups.find((g) => g.members.includes(id));
+    if (g) {
+      g.members = g.members.filter((m) => m !== id);
+      if (g.members.length === 1 && room.groups.length > 1) {
+        const lone = g.members[0];
+        room.groups = room.groups.filter((x) => x !== g);
+        addToSmallestGroup(lone);
+      } else g.talk = talkingPoints(g.members);
+    }
+  }
+  publishNow(); render();
+}
+
+// ------------------------------------------------------------ rendering
+function joinUrl() {
+  const u = new URL("./", location.href);
+  u.search = "";
+  u.searchParams.set("r", room.code);
+  if (LF.params.get("brokers")) u.searchParams.set("brokers", LF.params.get("brokers"));
+  return u.href;
+}
+let qrFor = null;
+function renderQR() {
+  const url = joinUrl();
+  if (qrFor === url) return;
+  qrFor = url;
+  const qr = qrcode(0, "M"); qr.addData(url); qr.make();
+  const svg = qr.createSvgTag({ cellSize: 4, margin: 2, scalable: true });
+  $("qr").innerHTML = svg; $("qrMini").innerHTML = svg;
+  $("joinUrl").textContent = url.replace(/^https?:\/\//, "");
+}
+function renderStatus() {
+  const up = bus ? bus.up : 0;
+  $("status").classList.toggle("live", up > 0);
+  $("statusText").textContent = up > 0 ? "Live" : "Connecting…";
+}
+function show(id) { for (const s of ["sLobby", "sQuestion", "sMatched"]) $(s).classList.toggle("hidden", s !== id); }
+function addFlower(color) {
+  const g = $("garden");
+  if (g.children.length > 90) return;
+  const f = document.createElement("div");
+  f.className = "flower";
+  f.style.left = (2 + Math.random() * 94) + "%";
+  const h = 14 + Math.random() * 30;
+  f.innerHTML = LF.flowerSVG(color) + `<div class="stem" style="height:${h}px"></div>`;
+  g.appendChild(f);
+}
+function headlineFor(counts, qs) {
+  const total = counts.reduce((a, b) => a + b, 0);
+  if (!total) return "Nobody answered this one. Mysterious.";
+  const max = Math.max(...counts), tops = counts.map((c, i) => (c === max ? i : -1)).filter((i) => i >= 0);
+  if (max === total && total > 1) return "Everyone picked the same answer. Rare!";
+  if (tops.length > 1) return "It's a tie! This room is split.";
+  return `The room's pick: ${qs.options[tops[0]][0]} ${qs.options[tops[0]][1]}`;
+}
+
+function render(newId) {
+  renderStatus();
+  $("hCode").textContent = room.code; $("bigCode").textContent = room.code; $("miniCode").textContent = room.code;
+  renderQR();
+  $("setCount").value = room.settings.count; $("setSeconds").value = room.settings.seconds;
+  $("setSize").value = room.settings.groupSize; $("setMode").value = room.settings.mode;
+  const n = room.order.length, qs = Q();
+
+  if (room.phase === "lobby") {
+    show("sLobby");
+    $("pCount").textContent = n;
+    $("pWord").textContent = n === 1 ? "person tuned in" : "people tuned in";
+    if (!n) $("players").innerHTML = `<span class="empty">Waiting for the first person to tune in…</span>`;
+    else {
+      // add only new chips so existing ones don't re-animate
+      if ($("players").querySelector(".empty")) $("players").innerHTML = "";
+      const have = new Set([...$("players").children].map((c) => c.dataset.id));
+      for (const id of room.order) if (!have.has(id)) {
+        const p = room.players[id], fg = LF.TEAM_COLORS.find((c) => c[0] === p.color)?.[1] || "#1d1648";
+        const el = document.createElement("span");
+        el.className = "chip"; el.dataset.id = id; el.style.background = p.color; el.style.color = fg;
+        el.innerHTML = `${esc(p.name)}<button title="Remove" data-kick="${id}">✕</button>`;
+        $("players").appendChild(el);
+      }
+      for (const el of [...$("players").children]) if (!room.players[el.dataset.id]) el.remove();
+    }
+    $("startBtn").disabled = n < 2;
+    $("startBtn").textContent = n < 2 ? "Waiting for at least 2 people" : `Start with ${n} people`;
+    return;
+  }
+  if (room.phase === "question" || room.phase === "reveal") {
+    show("sQuestion");
+    const i = room.qIndex, q = qs[i], reveal = room.phase === "reveal";
+    const counts = [0, 0, 0, 0];
+    let answered = 0;
+    for (const id of room.order) { const c = room.players[id].answers[i]; if (c != null) { counts[c]++; answered++; } }
+    $("qNum").textContent = `Question ${i + 1} of ${qs.length}`;
+    $("dots").innerHTML = qs.map((_, k) => `<i class="${k <= i ? "on" : ""}"></i>`).join("");
+    if ($("qText").dataset.key !== String(i)) { $("qText").dataset.key = String(i); $("qText").textContent = q.q; $("qText").style.animation = "none"; void $("qText").offsetWidth; $("qText").style.animation = ""; }
+    for (const id of ["opts", "garden"]) $(id).classList.toggle("hidden", reveal);
+    for (const id of ["bars", "headline"]) $(id).classList.toggle("hidden", !reveal);
+    $("timer").classList.toggle("hidden", reveal || !room.endsAt);
+    if (!reveal) {
+      if ($("opts").dataset.key !== "q" + i) {
+        $("opts").dataset.key = "q" + i;
+        $("opts").innerHTML = q.options.map(([e, t], k) => `<div class="opt" style="background:${LF.OPTION_COLORS[k][0]};color:${LF.OPTION_COLORS[k][1]}"><span class="emo">${e}</span>${esc(t)}</div>`).join("");
+      }
+      // garden matches the answer count (also after a page refresh)
+      while ($("garden").children.length < Math.min(answered, 90)) addFlower(LF.BLOOM[$("garden").children.length % LF.BLOOM.length]);
+    } else {
+      const total = answered || 1, key = i + ":" + counts.join(","), max = Math.max(...counts);
+      if ($("bars").dataset.key !== key) {
+        const first = !$("bars").dataset.key || !$("bars").dataset.key.startsWith(i + ":");
+        $("bars").dataset.key = key;
+        $("headline").textContent = headlineFor(counts, q);
+        $("bars").innerHTML = q.options.map(([e, t], k) => `
+          <div class="bar ${counts[k] === max && max > 0 ? "top" : ""}">
+            <div class="barLabel"><span class="emo">${e}</span>${esc(t)}</div>
+            <div class="barTrack"><div class="barFill" style="background:${LF.OPTION_COLORS[k][0]}"></div></div>
+          <div class="barPct">${Math.round((counts[k] / total) * 100)}%<small>${counts[k]} ${counts[k] === 1 ? "person" : "people"}</small></div></div>`).join("");
+        requestAnimationFrame(() => requestAnimationFrame(() =>
+          [...$("bars").querySelectorAll(".barFill")].forEach((el, k) => (el.style.width = `${Math.max(1.5, (counts[k] / total) * 100)}%`))));
+        if (first) setTimeout(() => { const r = $("headline").getBoundingClientRect(); LF.bloomBurst(r.left + 40, r.top + 20, { count: 16, spread: 140 }); }, 900);
+      }
+    }
+    $("answered").innerHTML = `<strong>${answered}</strong> of ${n} answered`;
+    $("nextBtn").textContent = !reveal ? "Close question" : i + 1 >= qs.length ? "Match everyone →" : "Next question →";
+    return;
+  }
+  if (room.phase === "matched") {
+    show("sMatched");
+    $("groups").innerHTML = room.groups.map((g, k) => `
+      <div class="group" style="animation-delay:${Math.min(k * 70, 1400)}ms">
+        <div class="gh" style="background:${g.color};color:${g.fg}"><span class="ge">${g.emoji}</span><div><b>${esc(g.name)}</b><small>${esc(g.ar)}</small></div></div>
+        <ul>${g.members.map((id) => `<li>${esc(room.players[id]?.name || "?")}</li>`).join("")}</ul></div>`).join("");
+  }
+}
+function showTuning() {
+  $("tuning").classList.remove("hidden");
+  setTimeout(() => { $("tuning").classList.add("hidden"); render(); LF.petalRain(60); }, 2600);
+}
+
+// ------------------------------------------------------------ controls
+function ask(title, text, yes, fn) {
+  $("mTitle").textContent = title; $("mText").textContent = text; $("mYes").textContent = yes;
+  $("modal").classList.remove("hidden");
+  $("mYes").onclick = () => { $("modal").classList.add("hidden"); fn(); };
+}
+$("mNo").onclick = () => $("modal").classList.add("hidden");
+$("players").addEventListener("click", (e) => { const id = e.target.dataset.kick; if (id) kick(id); });
+for (const [el, key] of [["setCount", "count"], ["setSeconds", "seconds"], ["setSize", "groupSize"], ["setMode", "mode"]])
+  $(el).addEventListener("change", () => { room.settings[key] = key === "mode" ? $(el).value : Number($(el).value); publish(); });
+let wakeLock = null;
+async function keepAwake() { try { wakeLock = await navigator.wakeLock?.request("screen"); } catch {} }
+$("startBtn").onclick = () => { keepAwake(); next(); };
+$("nextBtn").onclick = next;
+$("rematchBtn").onclick = () => { makeGroups(); room.matchedAt = Date.now(); publishNow(); showTuning(); };
+$("restartBtn").onclick = () => ask("Play again?", "This clears all answers. Everyone stays in the room.", "Play again", () => {
+  room.phase = "lobby"; room.qIndex = -1; room.endsAt = null; room.groups = []; room.questions = [];
+  for (const id of room.order) { room.players[id].answers = Array(5).fill(null); room.players[id].n = Array(5).fill(-1); }
+  publishNow(); render();
+});
+$("newRoomBtn").onclick = () => ask("Start a new room?", "Everyone will need to scan the new QR code.", "New room", () => {
+  bus.publish(LF.topic(room.code, "state"), "", { qos: 1, retain: true }); // close the old room
+  room = freshRoom(room);
+  $("players").innerHTML = "";
+  resubscribe(); publishNow(); render();
+});
+document.addEventListener("keydown", (e) => {
+  if (room.phase === "lobby" || room.phase === "matched" || !$("modal").classList.contains("hidden")) return;
+  if (e.key === "ArrowRight" || e.key === " " || e.key === "PageDown") { e.preventDefault(); next(); }
+});
+document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible" && room.phase !== "lobby") keepAwake(); });
+
+render();
+</script>
+</body>
+</html>
