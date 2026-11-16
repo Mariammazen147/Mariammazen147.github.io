@@ -219,6 +219,7 @@ setInterval(() => {
 // ------------------------------------------------------------ join
 $("joinForm").addEventListener("submit", (e) => {
   e.preventDefault();
+  if ($("joinBtn").disabled) return;
   if (!code) {
     const c = $("code").value.trim().toUpperCase();
     if (c.length !== 5) return ($("err").textContent = "Enter the 5-character room code from the screen.");
@@ -228,6 +229,7 @@ $("joinForm").addEventListener("submit", (e) => {
   }
   const name = $("name").value.trim();
   if (!name) return ($("err").textContent = "What should we call you?");
+  if (me) { sendJoin(); return waiting("Tuning in…", ""); } // double tap: never join twice
   LF.store.set("lf_name", name);
   me = { id: LF.rid(), name };
   LF.store.set("lf_p_" + code, me);
